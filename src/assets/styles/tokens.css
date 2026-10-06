@@ -94,3 +94,24 @@
   padding: 1rem !important;
   background-color: var(--g-kit-white, #ffffff) !important;
 }
+
+/* ========================================================
+   UNIFIED SHINY GOLD NOMINAL STYLING (24K BULLION THEME)
+   Tone: 100% Identical 24K Gold tone across ALL components
+   ======================================================== */
+.shiny-gold-nominal,
+.shiny-gold-hero {
+  background: linear-gradient(
+    180deg,
+    #ffe57f 0%,
+    #f59e0b 32%,
+    #d97706 68%,
+    #b45309 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: #f59e0b !important;
+  font-weight: 700 !important;
+  display: inline-block;
+}

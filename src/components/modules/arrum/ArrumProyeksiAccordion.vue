@@ -37,11 +37,16 @@ defineProps<ArrumProyeksiAccordionProps>()
             <div class="year-card-content">
               <div class="content-col">
                 <span class="content-caption">Estimasi Nilai Buyback</span>
-                <strong class="content-value text-gold">{{ card.nilaiEmas }}</strong>
+                <div class="value-row">
+                  <strong class="content-value shiny-gold-nominal">{{ card.nilaiEmas }}</strong>
+                </div>
               </div>
               <div class="content-col text-end">
                 <span class="content-caption">Harga Jual Galeri 24</span>
-                <span class="content-value">{{ card.hargaJual }} / gr</span>
+                <div class="value-row">
+                  <strong class="content-value text-reference">{{ card.hargaJual }}</strong>
+                  <span class="unit-suffix">/ gr</span>
+                </div>
               </div>
             </div>
           </div>
@@ -137,36 +142,52 @@ defineProps<ArrumProyeksiAccordionProps>()
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 12px;
+  gap: 16px;
 }
 
 .content-col {
   display: flex;
   flex-direction: column;
+  gap: 3px;
 }
 
 .text-end {
   text-align: right;
+  align-items: flex-end;
 }
 
 .content-caption {
-  font-size: var(--g-kit-font-size-atom);
-  line-height: var(--g-kit-line-height-atom);
+  font-size: var(--g-kit-font-size-atom, 12px);
+  line-height: var(--g-kit-line-height-atom, 16px);
   color: #64748b;
-  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.value-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.content-col.text-end .value-row {
+  justify-content: flex-end;
 }
 
 .content-value {
-  font-size: var(--g-kit-font-size-sigma);
-  line-height: var(--g-kit-line-height-sigma);
-  font-weight: var(--g-kit-font-weight-bold);
-  color: #1e293b;
+  font-size: var(--g-kit-font-size-omicron, 15px) !important;
+  line-height: var(--g-kit-line-height-omicron, 20px) !important;
+  font-weight: var(--g-kit-font-weight-bold, 700) !important;
+  letter-spacing: -0.01em;
 }
 
-.content-value.text-gold {
-  font-size: var(--g-kit-font-size-omicron);
-  line-height: var(--g-kit-line-height-omicron);
-  font-weight: var(--g-kit-font-weight-bold);
-  color: #9a7416 !important;
+.content-value.text-reference {
+  color: #0f172a !important;
+}
+
+.unit-suffix {
+  font-size: var(--g-kit-font-size-atom, 12px);
+  line-height: 1;
+  font-weight: 500;
+  color: #64748b;
 }
 </style>

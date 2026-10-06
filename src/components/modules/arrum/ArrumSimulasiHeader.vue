@@ -241,7 +241,7 @@ const scrollToSection = (id: string): void => {
 
               <div class="price-box" :class="{ 'price-pulse-sync': showSyncSuccess }">
                 <span class="price-caption">Estimasi Harga Buyback</span>
-                <strong class="price-value text-buyback">{{ formatRupiah(hargaBuyback) }}</strong>
+                <strong class="price-value shiny-gold-nominal">{{ formatRupiah(hargaBuyback) }}</strong>
                 <span class="price-unit">per gram saat dicairkan</span>
               </div>
             </div>
@@ -777,10 +777,6 @@ const scrollToSection = (id: string): void => {
   font-weight: var(--g-kit-font-weight-bold);
   color: #0f172a;
   letter-spacing: -0.02em;
-}
-
-.price-value.text-buyback {
-  color: #d97706;
 }
 
 .price-unit {

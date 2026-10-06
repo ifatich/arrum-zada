@@ -123,7 +123,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
 
         <!-- Main Gram Display -->
         <div class="hero-gram-wrapper">
-          <span class="hero-gram-number">{{ formatNumber(gramasiEmas) }}</span>
+          <span class="hero-gram-number shiny-gold-hero">{{ formatNumber(gramasiEmas) }}</span>
           <span class="hero-gram-unit">Gram</span>
         </div>
 
@@ -131,7 +131,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
         <div class="hero-conversion-box">
           <div class="conversion-headline">
             <span class="conversion-label">Setara Modal Hari Ini:</span>
-            <strong class="conversion-value">{{ formatRupiah(nilaiEmasHariIni) }}</strong>
+            <strong class="conversion-value shiny-gold-hero">{{ formatRupiah(nilaiEmasHariIni) }}</strong>
           </div>
           <p class="conversion-source">
             Berdasarkan acuan harga jual Galeri 24 hari ini
@@ -152,7 +152,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
           <strong class="row-value">± {{ formatRupiah(tabunganPerBulanRp) }} / bln</strong>
         </div>
 
-        <!-- 2. Estimasi Nilai Keberangkatan -->
+        <!-- 2. Estimasi Nilai Keberangkatan (Highlight Nilai Masa Depan) -->
         <div class="summary-row">
           <div>
             <span class="row-title">Estimasi Nilai saat Keberangkatan</span>
@@ -160,7 +160,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
               Proyeksi nilai buyback di tahun ke-{{ tahunInvestasi }}
             </small>
           </div>
-          <strong class="row-value text-success">{{ formatRupiah(nilaiEmasAkhir) }}</strong>
+          <strong class="row-value shiny-gold-nominal">{{ formatRupiah(nilaiEmasAkhir) }}</strong>
         </div>
 
         <!-- 3. Proteksi Nilai Aset (Gain Inflasi) -->
@@ -252,7 +252,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
 }
 
 .step-result {
-  background: var(--g-kit-lime-50, #00ab4e);
+  background: var(--g-kit-broccoli-50, #0b4430);
 }
 
 .card-heading {
@@ -405,7 +405,6 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   font-size: var(--g-kit-font-size-omicron);
   line-height: var(--g-kit-line-height-omicron);
   font-weight: var(--g-kit-font-weight-bold);
-  color: #fef08a;
   letter-spacing: -0.01em;
 }
 
