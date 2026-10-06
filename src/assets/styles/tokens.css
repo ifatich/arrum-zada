@@ -1,0 +1,96 @@
+:root {
+  --bb-elevation-1: 0 2px 6px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.08);
+  --bb-elevation-card: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --g-kit-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Normalisasi Table Kitvue agar responsif 100% dan tidak tertekan */
+.table {
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+.table>thead>tr>th {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Reset default override kitvue th:first-child width: 56px yang menjepit kolom pertama */
+.table>thead>tr>th:first-child {
+  width: auto !important;
+}
+
+/* Normalisasi border & spacing InputNominal Kitvue */
+.group-input .custom-input-group-icon {
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--g-kit-white, #ffffff);
+}
+
+.group-input .custom-input-group-icon>.form-control {
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+/* Sesuaikan lebar prefix Rp pada InputNominalStart agar proporsional */
+.rupiah.custom-input-group-icon .input-group-text {
+  min-width: 48px !important;
+  padding-inline: 12px !important;
+  border-right: 1px solid var(--g-kit-black-20, #eeeeef) !important;
+  background-color: var(--g-kit-black-10, #f8fafc) !important;
+  color: var(--g-kit-black-60, #64748b) !important;
+  font-weight: var(--g-kit-font-weight-normal);
+}
+
+/* Sesuaikan border suffix unit pada InputNominalEnd */
+.input-nominal-end .input-group-text {
+  border-left: 1px solid var(--g-kit-black-20, #eeeeef) !important;
+  background-color: var(--g-kit-black-10, #f8fafc) !important;
+  color: var(--g-kit-black-60, #64748b) !important;
+  padding-inline: 14px !important;
+  font-weight: var(--g-kit-font-weight-normal);
+}
+
+.group-input .custom-input-group-icon:has(.form-control:disabled) {
+  background-color: #eeeeef;
+  border-color: #eeeeef;
+}
+
+/* Penanganan modal display */
+.modal.show {
+  display: block !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+/* Normalisasi Accordion Kitvue (Padding 1rem & border radius) */
+.accordion-item {
+  border: 1px solid var(--g-kit-black-20, #e2e8f0) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background-color: var(--g-kit-white, #ffffff) !important;
+  padding: 0px;
+}
+
+.accordion-button {
+  padding: 1rem !important;
+  font-size: var(--g-kit-font-size-omicron) !important;
+  line-height: var(--g-kit-line-height-omicron) !important;
+  font-weight: var(--g-kit-font-weight-bold) !important;
+  color: var(--g-kit-black-80, #1e293b) !important;
+  background-color: var(--g-kit-white, #ffffff) !important;
+  box-shadow: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #f8fafc !important;
+  color: var(--g-kit-broccoli-50, #0b4430) !important;
+  border-bottom: 1px solid var(--g-kit-black-20, #e2e8f0) !important;
+}
+
+.accordion-body {
+  padding: 1rem !important;
+  background-color: var(--g-kit-white, #ffffff) !important;
+}
