@@ -35,10 +35,10 @@ const lastSyncSuccess = ref<boolean>(false)
  * @returns State reaktif, nilai terhitung (computed), dan fungsi handler simulasi
  */
 export function useArrumSimulasi() {
-  // State Input Form Kebutuhan Dana
-  const pelunasanHaji = ref<string>('25000000')
-  const persiapanHaji = ref<string>('10000000')
-  const keperluanLain = ref<string>('0')
+  // State Input Form Kebutuhan Dana (Default kosong)
+  const pelunasanHaji = ref<string>('')
+  const persiapanHaji = ref<string>('')
+  const keperluanLain = ref<string>('')
 
   // State Jangka Waktu Perencanaan (Tahun)
   const waktuInvestasi = ref<string>('10')

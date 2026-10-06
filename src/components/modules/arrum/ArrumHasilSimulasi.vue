@@ -69,7 +69,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
     </div>
 
     <!-- Alert Peringatan Jika Waktu Tidak Valid -->
-    <div v-if="errorMessage" class="mb-3">
+    <div v-if="errorMessage && totalKebutuhan > 0" class="mb-3">
       <GAlert
         :label="errorMessage"
         color="red"
@@ -79,6 +79,29 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
 
     <!-- Empty State (Saat Belum Ada Input Kebutuhan Dana) -->
     <div v-if="totalKebutuhan === 0" class="empty-simulation-panel">
+      <div class="empty-icon-wrap" aria-hidden="true">
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+          <line x1="8" y1="6" x2="16" y2="6"></line>
+          <line x1="16" y1="14" x2="16" y2="18"></line>
+          <path d="M16 10h.01"></path>
+          <path d="M12 10h.01"></path>
+          <path d="M8 10h.01"></path>
+          <path d="M12 14h.01"></path>
+          <path d="M8 14h.01"></path>
+          <path d="M12 18h.01"></path>
+          <path d="M8 18h.01"></path>
+        </svg>
+      </div>
       <h3 class="empty-title">Simulasi Belum Terisi</h3>
       <p class="empty-text">
         Masukkan target kebutuhan dana dan jangka waktu menabung pada formulir di sebelah kiri
@@ -254,6 +277,18 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   background: #f8fafc;
   border-radius: 12px;
   border: 1.5px dashed #cbd5e1;
+}
+
+.empty-icon-wrap {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
 }
 
 .empty-title {
