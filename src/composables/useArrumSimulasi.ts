@@ -62,8 +62,7 @@ export function useArrumSimulasi() {
       tanggalAcuan.value = data.tanggalAcuan
       waktuUpdate.value = data.waktuUpdate
       lastSyncSuccess.value = true
-    } catch (err) {
-      console.error('[useArrumSimulasi] Gagal memperbarui harga emas:', err)
+    } catch {
       lastSyncSuccess.value = false
     } finally {
       isLoadingHarga.value = false

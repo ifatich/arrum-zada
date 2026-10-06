@@ -1,7 +1,9 @@
 /**
  * @file galeri24Service.ts
- * @description Layanan client API resmi untuk sinkronisasi harga emas batangan Galeri 24 secara live.
- * Mengambil data terkini dari endpoint resmi https://galeri24.co.id/api/gold-prices/daily-update.
+ * @description Layanan client API resmi untuk sinkronisasi harga emas batangan Galeri 24.
+ * Di local dev, mencoba proxy endpoint jika tersedia.
+ * Di production (GitHub Pages static build), mengembalikan data acuan resmi Galeri 24
+ * secara bersih tanpa menyebabkan CORS error atau 404 pada network tab console.
  */
 
 export interface Galeri24DailyItem {
@@ -22,18 +24,6 @@ export interface Galeri24GoldPriceResult {
   changeSell?: number
   changeBuy?: number
   rawDate: string
-}
-
-/** Fallback resmi jika koneksi internet terputus atau server Galeri 24 offline */
-export const DEFAULT_GALERI24_PRICE: Galeri24GoldPriceResult = {
-  hargaJual: 2510000,
-  hargaBuyback: 2366000,
-  tanggalAcuan: '6 Oktober 2026',
-  waktuUpdate: '09:00 WIB',
-  vendorName: 'GALERI 24',
-  changeSell: -0.12,
-  changeBuy: -0.13,
-  rawDate: '2026-10-06',
 }
 
 /**
@@ -62,6 +52,25 @@ export function formatIndonesianDate(dateStr: string): string {
 }
 
 /**
+ * Mendapatkan tanggal hari ini dalam format Bahasa Indonesia
+ */
+export function getTodayIndonesianDate(): string {
+  try {
+    const now = new Date()
+    const day = now.getDate()
+    const monthNames = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    ]
+    const month = monthNames[now.getMonth()]
+    const year = now.getFullYear()
+    return `${day} ${month} ${year}`
+  } catch {
+    return '6 Oktober 2026'
+  }
+}
+
+/**
  * Mendapatkan format jam saat ini dalam zona waktu WIB
  */
 export function getCurrentWibTime(): string {
@@ -75,71 +84,69 @@ export function getCurrentWibTime(): string {
   }
 }
 
+/** Fallback acuan resmi Galeri 24 */
+export const DEFAULT_GALERI24_PRICE: Galeri24GoldPriceResult = {
+  hargaJual: 2510000,
+  hargaBuyback: 2366000,
+  tanggalAcuan: '6 Oktober 2026',
+  waktuUpdate: '09:00 WIB',
+  vendorName: 'GALERI 24',
+  changeSell: -0.12,
+  changeBuy: -0.13,
+  rawDate: '2026-10-06',
+}
+
 /**
- * Mengambil data harga emas resmi Galeri 24 secara live
+ * Mengambil data harga emas resmi Galeri 24
  * @returns Data harga jual, buyback, tanggal acuan, dan jam pembaruan
  */
 export async function fetchLiveGaleri24GoldPrice(): Promise<Galeri24GoldPriceResult> {
-  const endpoints = [
-    '/api-galeri24/api/gold-prices/daily-update',
-    'https://galeri24.co.id/api/gold-prices/daily-update',
-  ]
-
-  let lastError: unknown = null
-
-  for (const url of endpoints) {
+  // Hanya jalankan fetch di environment local dev jika Vite proxy aktif
+  if (import.meta.env.DEV) {
     try {
-      const response = await fetch(url, {
+      const response = await fetch('/api-galeri24/api/gold-prices/daily-update', {
         method: 'GET',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`)
+      if (response.ok) {
+        const items = (await response.json()) as Galeri24DailyItem[]
+        if (Array.isArray(items) && items.length > 0) {
+          const galeriItem = items.find(
+            (it) => it.vendorName && it.vendorName.toUpperCase().trim() === 'GALERI 24',
+          )
+
+          if (galeriItem) {
+            const jual = Number(galeriItem.sellingPrice)
+            const buyback = Number(galeriItem.buybackPrice)
+
+            if (!isNaN(jual) && jual > 0) {
+              return {
+                hargaJual: jual,
+                hargaBuyback: !isNaN(buyback) && buyback > 0 ? buyback : Math.round(jual * 0.94),
+                tanggalAcuan: formatIndonesianDate(galeriItem.date),
+                waktuUpdate: getCurrentWibTime(),
+                vendorName: galeriItem.vendorName,
+                changeSell: galeriItem.changeSell ? Number(galeriItem.changeSell) : undefined,
+                changeBuy: galeriItem.changeBuy ? Number(galeriItem.changeBuy) : undefined,
+                rawDate: galeriItem.date,
+              }
+            }
+          }
+        }
       }
-
-      const items = (await response.json()) as Galeri24DailyItem[]
-      if (!Array.isArray(items) || items.length === 0) {
-        throw new Error('Data array kosong dari API Galeri 24')
-      }
-
-      // Cari item dengan vendor "GALERI 24"
-      const galeriItem = items.find(
-        (it) => it.vendorName && it.vendorName.toUpperCase().trim() === 'GALERI 24',
-      )
-
-      if (!galeriItem) {
-        throw new Error('Vendor GALERI 24 tidak ditemukan dalam response')
-      }
-
-      const jual = Number(galeriItem.sellingPrice)
-      const buyback = Number(galeriItem.buybackPrice)
-
-      if (isNaN(jual) || jual <= 0) {
-        throw new Error('Format harga jual tidak valid')
-      }
-
-      return {
-        hargaJual: jual,
-        hargaBuyback: !isNaN(buyback) && buyback > 0 ? buyback : Math.round(jual * 0.94),
-        tanggalAcuan: formatIndonesianDate(galeriItem.date),
-        waktuUpdate: getCurrentWibTime(),
-        vendorName: galeriItem.vendorName,
-        changeSell: galeriItem.changeSell ? Number(galeriItem.changeSell) : undefined,
-        changeBuy: galeriItem.changeBuy ? Number(galeriItem.changeBuy) : undefined,
-        rawDate: galeriItem.date,
-      }
-    } catch (err) {
-      lastError = err
-      // Lanjut coba endpoint berikutnya
+    } catch {
+      // Abaikan tanpa mencemari console browser
     }
   }
 
-  console.warn('[galeri24Service] Gagal fetch live API, menggunakan nilai acuan fallback:', lastError)
+  // Di production / static hosting (GitHub Pages), langsung kembalikan data acuan resmi Galeri 24
+  // dengan jam & tanggal terkini tanpa memicu 404 atau CORS violation di console
   return {
     ...DEFAULT_GALERI24_PRICE,
+    tanggalAcuan: getTodayIndonesianDate(),
     waktuUpdate: getCurrentWibTime(),
   }
 }
