@@ -302,8 +302,7 @@ Acuan Parameter:
 - Harga Buyback Galeri 24: ${formatRupiah(hargaBuyback.value)}/gr
 - Proyeksi Harga Emas Galeri 24: Jual ${formatRupiah(hargaJual.value * f)}/gr | Buyback ${formatRupiah(hargaBuyback.value * f)}/gr
 
-*Simulasi mengacu pada harga emas batangan Galeri 24 (${formatRupiah(hargaJual.value)}/gr) dengan asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan.
-*Informasi lebih lanjut dapat dikonsultasikan melalui outlet terdekat.`
+*Simulasi mengacu pada harga emas batangan Galeri 24 (${formatRupiah(hargaJual.value)}/gr) dengan asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan.`
 
     let copied = false
     try {

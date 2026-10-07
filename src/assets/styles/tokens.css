@@ -56,6 +56,32 @@
   border-color: #eeeeef;
 }
 
+/* ========================================================
+   WCAG 2.4.7 FOCUS VISIBLE KEYBOARD OUTLINES
+   ======================================================== */
+:focus-visible {
+  outline: 2.5px solid var(--g-kit-broccoli-50, #0b4430) !important;
+  outline-offset: 2px !important;
+}
+
+#sim-pelunasan:focus-visible,
+#sim-persiapan:focus-visible,
+#sim-keperluan:focus-visible,
+#sim-tahun:focus-visible,
+.group-input:has(input:focus-visible) {
+  outline: 2.5px solid var(--g-kit-broccoli-50, #0b4430) !important;
+  outline-offset: 2px !important;
+}
+
+#btn-copy-simulation:focus-visible,
+#btn-reset-simulation:focus-visible,
+.accordion-button:focus-visible,
+.year-chip-btn:focus-visible,
+.refresh-mini-btn:focus-visible {
+  outline: 2.5px solid var(--g-kit-broccoli-50, #0b4430) !important;
+  outline-offset: 2px !important;
+}
+
 /* Penanganan modal display */
 .modal.show {
   display: block !important;
@@ -118,15 +144,15 @@
 .grand-hero-panel .shiny-gold-hero {
   background: linear-gradient(
     180deg,
-    #fef08a 0%,
-    #fcd34d 40%,
-    #f59e0b 100%
+    #ffe57f 0%,
+    #f59e0b 32%,
+    #d97706 68%,
+    #b45309 100%
   ) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
-  color: #fef08a !important;
+  color: #f59e0b !important;
   font-weight: 700 !important;
   display: inline-block;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }

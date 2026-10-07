@@ -794,8 +794,8 @@ const scrollToSection = (id: string): void => {
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   color: #475569;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -818,8 +818,8 @@ const scrollToSection = (id: string): void => {
 }
 
 .refresh-mini-svg {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
 }
 
 .animate-spin {

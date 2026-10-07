@@ -328,7 +328,11 @@ const onSelectChip = (year: number): void => {
   font-size: var(--g-kit-font-size-sigma);
   line-height: var(--g-kit-line-height-sigma);
   font-weight: var(--g-kit-font-weight-bold);
-  padding: 7px 16px;
+  min-height: 44px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   border: 1.5px solid var(--g-kit-black-20, #e2e8f0);
   background: #ffffff;
@@ -390,7 +394,11 @@ const onSelectChip = (year: number): void => {
   .year-chip-btn {
     flex: 1 1 calc(33.333% - 8px);
     min-width: 75px;
+    min-height: 44px;
     padding: 8px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     font-size: var(--g-kit-font-size-omega);
     line-height: var(--g-kit-line-height-omega);

@@ -6,8 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const outDir = path.resolve(__dirname, '../public/data')
 const outFile = path.join(outDir, 'gold-prices.json')
 
-function getJakartaIsoString() {
-  const now = new Date()
+export function getJakartaIsoString(now = new Date()) {
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Jakarta',
     year: 'numeric',
@@ -22,10 +21,15 @@ function getJakartaIsoString() {
   return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+07:00`
 }
 
-async function fetchLatestGoldPrices() {
+export async function fetchLatestGoldPrices({
+  targetOutDir = outDir,
+  targetOutFile = outFile,
+  fetchFn = globalThis.fetch,
+  exitOnError = true,
+} = {}) {
   try {
     console.log('Fetching live gold prices directly from Galeri 24 server...')
-    const res = await fetch('https://galeri24.co.id/api/gold-prices/daily-update', {
+    const res = await fetchFn('https://galeri24.co.id/api/gold-prices/daily-update', {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; ArrumZadaSync/1.0)',
@@ -41,8 +45,8 @@ async function fetchLatestGoldPrices() {
       throw new Error('Data array kosong dari API Galeri 24')
     }
 
-    if (!fs.existsSync(outDir)) {
-      fs.mkdirSync(outDir, { recursive: true })
+    if (!fs.existsSync(targetOutDir)) {
+      fs.mkdirSync(targetOutDir, { recursive: true })
     }
 
     const fetchedAt = getJakartaIsoString()
@@ -51,19 +55,25 @@ async function fetchLatestGoldPrices() {
       fetchedAt,
     }))
 
-    fs.writeFileSync(outFile, JSON.stringify(enrichedData, null, 2), 'utf-8')
-    console.log('✓ Berhasil menyimpan data harga emas Galeri 24 ke:', outFile)
+    fs.writeFileSync(targetOutFile, JSON.stringify(enrichedData, null, 2), 'utf-8')
+    console.log('✓ Berhasil menyimpan data harga emas Galeri 24 ke:', targetOutFile)
+    return { success: true, enrichedData }
   } catch (err) {
-    if (fs.existsSync(outFile)) {
+    if (fs.existsSync(targetOutFile)) {
       console.warn('⚠️ Gagal fetch live API dari Galeri 24. Mempertahankan file lama apa adanya:', err.message)
-      // Pertahankan file lama apa adanya (jangan ubah date atau fetchedAt)
-      return
+      return { success: false, preserved: true, error: err.message }
     }
 
-    // Saat gagal dan file belum ada: jangan menulis harga karangan. Keluar dengan error agar langkah CI gagal terlihat.
     console.error('❌ Gagal fetch data dari Galeri 24 dan file cache belum ada:', err.message)
-    process.exit(1)
+    if (exitOnError) {
+      process.exit(1)
+    }
+    throw err
   }
 }
 
-fetchLatestGoldPrices()
+// Eksekusi otomatis jika dijalankan langsung lewat CLI (node scripts/fetch-gold-price.mjs)
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
+if (isMain) {
+  fetchLatestGoldPrices()
+}
