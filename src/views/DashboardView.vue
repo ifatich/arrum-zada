@@ -46,6 +46,12 @@ const {
   hargaBuyback,
   tanggalAcuan,
   waktuUpdate,
+  isPriceToday,
+  isPriceLoaded,
+  hasPriceError,
+  priceErrorMessage,
+  syncFeedbackMessage,
+  syncFeedbackType,
   isLoadingHarga,
   refreshHargaEmas,
   handleCopySummary,
@@ -62,6 +68,9 @@ const {
       :tanggal-acuan="tanggalAcuan"
       :waktu-update="waktuUpdate"
       :is-loading-harga="isLoadingHarga"
+      :is-today="isPriceToday"
+      :has-error="hasPriceError"
+      :error-message="priceErrorMessage"
       @refresh-harga="refreshHargaEmas"
     />
 
@@ -72,6 +81,17 @@ const {
           label="Ringkasan simulasi rencana emas haji berhasil disalin ke clipboard."
           color="green"
           variant="success"
+        />
+      </div>
+    </transition>
+
+    <!-- Floating Toast Notifikasi Umpan Balik Pembaruan Harga Emas -->
+    <transition name="fade">
+      <div v-if="syncFeedbackMessage" class="simulasi-toast simulasi-toast-sync" role="status" aria-live="polite">
+        <GAlert
+          :label="syncFeedbackMessage"
+          :color="syncFeedbackType === 'success' ? 'green' : (syncFeedbackType === 'danger' ? 'red' : 'yellow')"
+          :variant="syncFeedbackType === 'success' ? 'success' : (syncFeedbackType === 'danger' ? 'danger' : 'warning')"
         />
       </div>
     </transition>
@@ -117,6 +137,9 @@ const {
           :persentase-pertumbuhan="persentasePertumbuhan"
           :proyeksi-cards="proyeksiCards"
           :notif-copied="notifCopied"
+          :has-price-error="hasPriceError"
+          :is-price-loaded="isPriceLoaded"
+          :harga-jual="hargaJual"
           :format-number="formatNumber"
           :format-rupiah="formatRupiah"
           @copy-summary="handleCopySummary"
@@ -145,6 +168,10 @@ const {
   border-radius: 12px;
 }
 
+.simulasi-toast-sync {
+  top: 144px;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -171,6 +198,17 @@ const {
 }
 
 @media (max-width: 640px) {
+  .simulasi-toast {
+    left: 12px;
+    right: 12px;
+    top: 72px;
+    max-width: calc(100% - 24px);
+  }
+
+  .simulasi-toast-sync {
+    top: 130px;
+  }
+
   .simulasi-wrapper {
     padding: 16px 12px 48px;
   }

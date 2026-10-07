@@ -29,34 +29,47 @@ let successTimer: ReturnType<typeof setTimeout> | null = null
 /** Interface props untuk header landing page */
 export interface ArrumSimulasiHeaderProps {
   /** Harga jual resmi emas acuan per gram */
-  hargaJual?: number
+  hargaJual?: number | null
   /** Harga buyback resmi emas acuan per gram */
-  hargaBuyback?: number
+  hargaBuyback?: number | null
   /** Tanggal pembaruan harga resmi */
   tanggalAcuan?: string
-  /** Waktu / jam pembaruan harga resmi (misal: '09:00 WIB') */
+  /** Waktu / jam pembaruan harga resmi (misal: '12:54 WIB') */
   waktuUpdate?: string
   /** Status sedang memuat sinkronisasi harga dari API */
   isLoadingHarga?: boolean
+  /** Apakah tanggal data bertanggal hari ini di zona Asia/Jakarta */
+  isToday?: boolean
+  /** Apakah terjadi error saat memuat harga */
+  hasError?: boolean
+  /** Pesan error jika gagal memuat harga */
+  errorMessage?: string
 }
 
 const props = withDefaults(defineProps<ArrumSimulasiHeaderProps>(), {
-  hargaJual: 2510000,
-  hargaBuyback: 2366000,
-  tanggalAcuan: '6 Oktober 2026',
-  waktuUpdate: '09:00 WIB',
+  hargaJual: null,
+  hargaBuyback: null,
+  tanggalAcuan: '',
+  waktuUpdate: '',
   isLoadingHarga: false,
+  isToday: false,
+  hasError: false,
+  errorMessage: '',
 })
 
 const emit = defineEmits<{
   (e: 'refreshHarga'): void
 }>()
 
-// Efek psikologis: Pantau saat proses refresh harga selesai untuk memunculkan status sukses & glow
+const handleRefresh = (): void => {
+  emit('refreshHarga')
+}
+
+// Pantau saat proses refresh harga selesai untuk memunculkan efek visual sejenak jika hari ini
 watch(
   () => props.isLoadingHarga,
   (newVal, oldVal) => {
-    if (oldVal === true && newVal === false) {
+    if (oldVal === true && newVal === false && props.isToday && !props.hasError) {
       showSyncSuccess.value = true
       if (successTimer) clearTimeout(successTimer)
       successTimer = setTimeout(() => {
@@ -88,7 +101,8 @@ onUnmounted(() => {
  * Pemformat angka Rupiah standar
  * @param val - Nilai numerik
  */
-const formatRupiah = (val: number): string => {
+const formatRupiah = (val?: number | null): string => {
+  if (val === null || val === undefined || isNaN(val) || val <= 0) return '-'
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -197,21 +211,22 @@ const scrollToSection = (id: string): void => {
                     <span class="tag-live-dot" aria-hidden="true"></span>
                     Acuan Resmi Galeri 24
                   </span>
-                  <transition name="sync-fade">
-                    <span v-if="showSyncSuccess" class="sync-status-pill" role="status">
-                      <span class="sync-check" aria-hidden="true">✓</span>
-                      Terkini
-                    </span>
-                  </transition>
+                  <!-- Badge Terkini HANYA tampil jika data bertanggal hari ini -->
+                  <span v-if="isToday && !hasError && hargaJual" class="sync-status-pill" role="status">
+                    <span class="sync-check" aria-hidden="true">✓</span>
+                    Terkini
+                  </span>
                 </div>
                 <button
+                  id="btn-refresh-gold-price"
                   type="button"
                   class="refresh-mini-btn"
                   :class="{ 'is-spinning': isLoadingHarga }"
-                  :title="isLoadingHarga ? 'Sedang memperbarui harga...' : 'Perbarui harga live dari Galeri 24'"
+                  :title="isLoadingHarga ? 'Sedang memperbarui harga...' : 'Muat ulang harga terbaru'"
+                  :aria-label="isLoadingHarga ? 'Sedang memperbarui harga...' : 'Muat ulang harga terbaru'"
                   :disabled="isLoadingHarga"
                   :aria-busy="isLoadingHarga"
-                  @click="$emit('refreshHarga')"
+                  @click="handleRefresh"
                 >
                   <svg
                     class="refresh-mini-svg"
@@ -226,22 +241,56 @@ const scrollToSection = (id: string): void => {
                       fill="currentColor"
                     />
                   </svg>
-                  <span class="sr-only">Perbarui Harga</span>
+                  <span class="sr-only">Muat ulang harga terbaru</span>
                 </button>
               </div>
-              <span class="highlight-date">Per {{ tanggalAcuan }}, {{ waktuUpdate }}</span>
+              <span v-if="tanggalAcuan" class="highlight-date">
+                Per {{ tanggalAcuan }}{{ waktuUpdate ? `, ${waktuUpdate}` : '' }}
+              </span>
+              <span v-else-if="isLoadingHarga" class="highlight-date text-loading">
+                Memuat data harga resmi...
+              </span>
+              <span v-else class="highlight-date text-danger-date">
+                Data harga belum dimuat
+              </span>
+            </div>
+
+            <!-- Banner Peringatan Jika Tanggal Data Bukan Hari Ini -->
+            <div
+              v-if="!isToday && tanggalAcuan && !hasError"
+              class="price-warning-banner"
+              role="alert"
+            >
+              <span class="warning-icon" aria-hidden="true">⚠️</span>
+              <span class="warning-text">
+                Harga per {{ tanggalAcuan }}. Pastikan harga terbaru sebelum akad.
+              </span>
+            </div>
+
+            <!-- Banner Error Jika Data Gagal Dimuat -->
+            <div
+              v-if="hasError"
+              class="price-error-banner"
+              role="alert"
+            >
+              <span class="error-icon" aria-hidden="true">⚠️</span>
+              <span class="error-text">
+                {{ errorMessage || 'Data harga resmi Galeri 24 tidak dapat dimuat. Silakan muat ulang.' }}
+              </span>
             </div>
 
             <div class="highlight-price-group">
               <div class="price-box" :class="{ 'price-pulse-sync': showSyncSuccess }">
                 <span class="price-caption">Harga Jual Batangan</span>
-                <strong class="price-value">{{ formatRupiah(hargaJual) }}</strong>
+                <strong v-if="hargaJual" class="price-value">{{ formatRupiah(hargaJual) }}</strong>
+                <strong v-else class="price-value price-unavailable">Tidak Tersedia</strong>
                 <span class="price-unit">per gram pecahan 1 gr</span>
               </div>
 
               <div class="price-box" :class="{ 'price-pulse-sync': showSyncSuccess }">
                 <span class="price-caption">Estimasi Harga Buyback</span>
-                <strong class="price-value shiny-gold-nominal">{{ formatRupiah(hargaBuyback) }}</strong>
+                <strong v-if="hargaBuyback" class="price-value shiny-gold-nominal">{{ formatRupiah(hargaBuyback) }}</strong>
+                <strong v-else class="price-value price-unavailable">Tidak Tersedia</strong>
                 <span class="price-unit">per gram saat dicairkan</span>
               </div>
             </div>
@@ -657,6 +706,67 @@ const scrollToSection = (id: string): void => {
   line-height: var(--g-kit-line-height-atom);
   color: #64748b;
   font-weight: 500;
+}
+
+.text-loading {
+  color: #0284c7;
+  font-style: italic;
+}
+
+.text-danger-date {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Banner Peringatan Tanggal Kedaluwarsa & Error */
+.price-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  color: #92400e;
+  font-size: var(--g-kit-font-size-atom, 12px);
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.warning-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+.price-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  color: #b91c1c;
+  font-size: var(--g-kit-font-size-atom, 12px);
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.error-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+.price-unavailable {
+  font-size: var(--g-kit-font-size-sigma, 14px) !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
 }
 
 /* Clean Refresh Button */

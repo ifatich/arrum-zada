@@ -8,13 +8,12 @@ import { ref, computed, onMounted } from 'vue'
 import type { ProyeksiCardItem, AcuanHargaEmas } from '@/types/simulasi'
 import {
   fetchLiveGaleri24GoldPrice,
-  DEFAULT_GALERI24_PRICE,
 } from '@/services/galeri24Service'
 
 /** Konstanta dasar acuan kenaikan harga emas */
 export const ACUAN_HARGA: AcuanHargaEmas = {
-  hargaJual: DEFAULT_GALERI24_PRICE.hargaJual,
-  hargaBuyback: DEFAULT_GALERI24_PRICE.hargaBuyback,
+  hargaJual: 0,
+  hargaBuyback: 0,
   lajuKenaikanTahunan: 0.07, // 7% per tahun rata-rata kenaikan historis konservatif
 }
 
@@ -22,12 +21,31 @@ export const ACUAN_HARGA: AcuanHargaEmas = {
 export const QUICK_YEAR_CHIPS: readonly number[] = [5, 10, 15, 20, 25] as const
 
 // State Global Reaktif Harga Emas (Single Source of Truth agar sinkron di seluruh komponen)
-const hargaJual = ref<number>(DEFAULT_GALERI24_PRICE.hargaJual)
-const hargaBuyback = ref<number>(DEFAULT_GALERI24_PRICE.hargaBuyback)
-const tanggalAcuan = ref<string>(DEFAULT_GALERI24_PRICE.tanggalAcuan)
-const waktuUpdate = ref<string>(DEFAULT_GALERI24_PRICE.waktuUpdate)
+const hargaJual = ref<number>(0)
+const hargaBuyback = ref<number>(0)
+const tanggalAcuan = ref<string>('')
+const waktuUpdate = ref<string>('')
+const rawDate = ref<string>('')
+const isPriceToday = ref<boolean>(false)
 const isLoadingHarga = ref<boolean>(false)
 const lastSyncSuccess = ref<boolean>(false)
+const isPriceLoaded = ref<boolean>(false)
+const hasPriceError = ref<boolean>(false)
+const priceErrorMessage = ref<string>('')
+
+// State Feedback Notifikasi Pembaruan Harga
+const syncFeedbackMessage = ref<string>('')
+const syncFeedbackType = ref<'success' | 'info' | 'danger'>('info')
+let syncFeedbackTimer: ReturnType<typeof setTimeout> | null = null
+
+function triggerSyncFeedback(msg: string, type: 'success' | 'info' | 'danger') {
+  syncFeedbackMessage.value = msg
+  syncFeedbackType.value = type
+  if (syncFeedbackTimer) clearTimeout(syncFeedbackTimer)
+  syncFeedbackTimer = setTimeout(() => {
+    syncFeedbackMessage.value = ''
+  }, 4000)
+}
 
 /**
  * Composable utama untuk mengelola state dan kalkulasi simulasi emas haji
@@ -51,19 +69,35 @@ export function useArrumSimulasi() {
    */
   const refreshHargaEmas = async (): Promise<void> => {
     isLoadingHarga.value = true
+    const prevPrice = hargaJual.value
+    const prevDate = tanggalAcuan.value
+    const wasLoaded = isPriceLoaded.value
+
     try {
-      // Delay minimum 850ms agar proses query ke API terasa nyata bagi nasabah
-      const [data] = await Promise.all([
-        fetchLiveGaleri24GoldPrice(),
-        new Promise((resolve) => setTimeout(resolve, 850)),
-      ])
+      const data = await fetchLiveGaleri24GoldPrice()
       hargaJual.value = data.hargaJual
       hargaBuyback.value = data.hargaBuyback
       tanggalAcuan.value = data.tanggalAcuan
       waktuUpdate.value = data.waktuUpdate
+      rawDate.value = data.rawDate
+      isPriceToday.value = data.isToday
+      hasPriceError.value = false
+      priceErrorMessage.value = ''
+      isPriceLoaded.value = true
       lastSyncSuccess.value = true
+
+      if (wasLoaded && prevPrice === data.hargaJual && prevDate === data.tanggalAcuan) {
+        triggerSyncFeedback('Data harga sudah yang terbaru (tidak ada pembaruan).', 'info')
+      } else {
+        triggerSyncFeedback(`Harga emas resmi Galeri 24 berhasil dimuat (per ${data.tanggalAcuan}).`, 'success')
+      }
     } catch {
       lastSyncSuccess.value = false
+      if (!isPriceLoaded.value) {
+        hasPriceError.value = true
+        priceErrorMessage.value = 'Data harga emas resmi Galeri 24 tidak dapat dimuat. Periksa koneksi internet.'
+      }
+      triggerSyncFeedback('Gagal memuat harga terbaru dari Galeri 24. Periksa koneksi internet.', 'danger')
     } finally {
       isLoadingHarga.value = false
     }
@@ -327,8 +361,15 @@ Acuan Parameter:
     hargaBuyback,
     tanggalAcuan,
     waktuUpdate,
+    rawDate,
+    isPriceToday,
     isLoadingHarga,
     lastSyncSuccess,
+    isPriceLoaded,
+    hasPriceError,
+    priceErrorMessage,
+    syncFeedbackMessage,
+    syncFeedbackType,
     refreshHargaEmas,
 
     // Computeds

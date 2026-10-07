@@ -39,6 +39,12 @@ export interface ArrumHasilSimulasiProps {
   proyeksiCards: ProyeksiCardItem[]
   /** Status feedback apakah ringkasan baru saja disalin */
   notifCopied: boolean
+  /** Apakah terjadi error pada harga emas acuan */
+  hasPriceError?: boolean
+  /** Apakah harga emas acuan sudah berhasil dimuat */
+  isPriceLoaded?: boolean
+  /** Harga jual emas saat ini (untuk memvalidasi kalkulasi) */
+  hargaJual?: number | null
   /** Fungsi pemformat angka standar */
   formatNumber: (num: number) => string
   /** Fungsi pemformat Rupiah */
@@ -51,7 +57,11 @@ export interface ArrumHasilSimulasiEmits {
   (e: 'reset'): void
 }
 
-defineProps<ArrumHasilSimulasiProps>()
+withDefaults(defineProps<ArrumHasilSimulasiProps>(), {
+  hasPriceError: false,
+  isPriceLoaded: true,
+  hargaJual: null,
+})
 const emit = defineEmits<ArrumHasilSimulasiEmits>()
 </script>
 
@@ -68,8 +78,17 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
       </div>
     </div>
 
+    <!-- Alert Error Jika Data Harga Tidak Tersedia Sama Sekali -->
+    <div v-if="hasPriceError || (!isPriceLoaded && !hargaJual)" class="price-fatal-panel mb-3">
+      <GAlert
+        label="Data harga emas resmi Galeri 24 tidak dapat dimuat. Kalkulasi simulasi dinonaktifkan hingga harga resmi berhasil diperoleh."
+        color="red"
+        variant="danger"
+      />
+    </div>
+
     <!-- Alert Peringatan Jika Waktu Tidak Valid -->
-    <div v-if="errorMessage && totalKebutuhan > 0" class="mb-3">
+    <div v-else-if="errorMessage && totalKebutuhan > 0" class="mb-3">
       <GAlert
         :label="errorMessage"
         color="red"
@@ -78,7 +97,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
     </div>
 
     <!-- Empty State (Saat Belum Ada Input Kebutuhan Dana) -->
-    <div v-if="totalKebutuhan === 0" class="empty-simulation-panel">
+    <div v-if="!hasPriceError && totalKebutuhan === 0" class="empty-simulation-panel">
       <div class="empty-icon-wrap" aria-hidden="true">
         <svg
           width="36"
@@ -110,7 +129,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
     </div>
 
     <!-- Tampilan Hasil Simulasi Lengkap (Bersih & Lega) -->
-    <div v-else-if="isValidTahun" class="simulation-content">
+    <div v-else-if="!hasPriceError && isValidTahun && hargaJual && hargaJual > 0" class="simulation-content">
       <!-- Grand Hero Result: Gramasi Emas Fisik Utama -->
       <div class="grand-hero-panel">
         <!-- Eyebrow Badge -->
