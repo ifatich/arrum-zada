@@ -64,13 +64,29 @@
   outline-offset: 2px !important;
 }
 
+/* Reset outline kaku pada elemen input individual & group-input luar agar tidak dobel border */
+#sim-pelunasan:focus,
 #sim-pelunasan:focus-visible,
+#sim-persiapan:focus,
 #sim-persiapan:focus-visible,
+#sim-lainnya:focus,
 #sim-lainnya:focus-visible,
+#sim-tahun:focus,
 #sim-tahun:focus-visible,
-.group-input:has(input:focus-visible) {
-  outline: 2.5px solid var(--g-kit-broccoli-50, #0b4430) !important;
-  outline-offset: 2px !important;
+.group-input:has(input:focus-visible),
+.group-input {
+  outline: none !important;
+}
+
+/* Terapkan cincin fokus rapi yang menyatu pada kontainer input melengkung (Kitvue input-group) */
+.input-group:has(#sim-pelunasan:focus-visible),
+.input-group:has(#sim-persiapan:focus-visible),
+.input-group:has(#sim-lainnya:focus-visible),
+.input-group:has(#sim-tahun:focus-visible) {
+  border-color: var(--g-kit-broccoli-50, #0b4430) !important;
+  box-shadow: 0 0 0 2.5px var(--g-kit-broccoli-50, #0b4430) !important;
+  border-radius: 6px !important;
+  outline: none !important;
 }
 
 #btn-copy-simulation:focus-visible,
