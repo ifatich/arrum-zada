@@ -87,14 +87,14 @@ export function getCurrentWibTime(): string {
 
 /** Fallback cadangan jika perangkat offline sepenuhnya */
 export const DEFAULT_GALERI24_PRICE: Galeri24GoldPriceResult = {
-  hargaJual: 2510000,
-  hargaBuyback: 2366000,
-  tanggalAcuan: '6 Oktober 2026',
+  hargaJual: 2516000,
+  hargaBuyback: 2368000,
+  tanggalAcuan: '7 Oktober 2026',
   waktuUpdate: '09:00 WIB',
   vendorName: 'GALERI 24',
-  changeSell: -0.12,
-  changeBuy: -0.13,
-  rawDate: '2026-10-06',
+  changeSell: 0.24,
+  changeBuy: 0.08,
+  rawDate: '2026-10-07',
 }
 
 /**
