@@ -294,14 +294,16 @@ Tanggal Pembaruan Harga: ${tanggalAcuan.value} (${waktuUpdate.value})
 - Estimasi Tabungan Emas Cicil per Bulan: ±${formatRupiah(tabunganPerBulanRp.value)}/bln (±${tabunganPerBulanGram.value} gr/bln, selama ${totalBulan.value} bulan)
   (Harga emas dikunci saat akad, cicilan tetap setiap bulan selama ${totalBulan.value} bulan. Harga akad mengikuti harga resmi Galeri 24 pada saat transaksi. Belum termasuk biaya lain yang berlaku saat akad.)
 - Estimasi Nilai Emas saat Berangkat: ${formatRupiah(nilaiEmasAkhir.value)}
-- Proteksi Nilai Aset (Gain Inflasi): +${formatRupiah(selisihPertumbuhanRp.value)} (+${persentasePertumbuhan.value}%)
+// TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral menggantikan Proteksi Nilai Aset (Gain)
+- Estimasi Selisih Nilai Emas: +${formatRupiah(selisihPertumbuhanRp.value)} (+${persentasePertumbuhan.value}%)
 
 Acuan Parameter:
 - Harga Jual Galeri 24: ${formatRupiah(hargaJual.value)}/gr
 - Harga Buyback Galeri 24: ${formatRupiah(hargaBuyback.value)}/gr
 - Proyeksi Harga Emas Galeri 24: Jual ${formatRupiah(hargaJual.value * f)}/gr | Buyback ${formatRupiah(hargaBuyback.value * f)}/gr
 
-*Simulasi mengacu pada harga emas batangan Galeri 24 (${formatRupiah(hargaJual.value)}/gr) dengan asumsi pertumbuhan historis 7% per tahun.
+// TODO: menunggu persetujuan kepatuhan/DPS: asumsi 7% mengacu sejak 2000 bukan jaminan
+*Simulasi mengacu pada harga emas batangan Galeri 24 (${formatRupiah(hargaJual.value)}/gr) dengan asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan.
 *Informasi lebih lanjut dapat dikonsultasikan melalui outlet terdekat.`
 
     let copied = false

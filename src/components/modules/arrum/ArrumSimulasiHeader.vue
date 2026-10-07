@@ -185,9 +185,10 @@ const scrollToSection = (id: string): void => {
               <span class="trust-desc">Batangan 24 Karat Resmi</span>
             </div>
             <div class="trust-divider" aria-hidden="true"></div>
+            <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral asumsi 7% per tahun bukan jaminan -->
             <div class="trust-item">
               <span class="trust-title">Lindung Nilai Inflasi</span>
-              <span class="trust-desc">Asumsi Historis 7%/Thn</span>
+              <span class="trust-desc">Asumsi 7%/Thn (Bukan Jaminan)</span>
             </div>
             <div class="trust-divider" aria-hidden="true"></div>
             <div class="trust-item">
@@ -297,8 +298,9 @@ const scrollToSection = (id: string): void => {
 
             <div class="highlight-card-footer">
               <div class="footer-badge">Kalkulasi Otomatis Konservatif</div>
+              <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral menggantikan kata menjamin -->
               <p class="footer-note">
-                Pembulatan gramasi ke atas menjamin kecukupan dana saat nomor porsi keberangkatan tiba.
+                Pembulatan gramasi ke atas agar dana lebih mencukupi (estimasi) saat nomor porsi keberangkatan tiba.
               </p>
             </div>
           </div>

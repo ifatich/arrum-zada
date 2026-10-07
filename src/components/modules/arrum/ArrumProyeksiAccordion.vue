@@ -27,10 +27,11 @@ defineProps<ArrumProyeksiAccordionProps>()
             :key="card.id"
             class="proyeksi-year-card"
           >
-            <!-- Baris Atas Kartu: Tahun & Persentase Gain -->
+            <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral persentase tanpa kata gain/untung -->
+            <!-- Baris Atas Kartu: Tahun & Estimasi Persentase Kenaikan -->
             <div class="year-card-top">
               <span class="year-title-badge">{{ card.tahunLabel }}</span>
-              <span class="year-gain-pill">{{ card.persenPertumbuhan }}</span>
+              <span class="year-growth-pill" aria-label="Estimasi selisih nilai">{{ card.persenPertumbuhan }}</span>
             </div>
 
             <!-- Konten Kartu: Estimasi Nilai Buyback & Harga Jual Galeri 24 -->
@@ -128,6 +129,7 @@ defineProps<ArrumProyeksiAccordionProps>()
   color: var(--g-kit-broccoli-70, #07281c);
 }
 
+.year-growth-pill,
 .year-gain-pill {
   font-size: var(--g-kit-font-size-atom);
   line-height: var(--g-kit-line-height-atom);

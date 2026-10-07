@@ -158,6 +158,27 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
         </div>
       </div>
 
+      <!-- TODO: menunggu persetujuan kepatuhan/DPS: disclaimer ringkas tepat di bawah grand hero panel -->
+      <div class="hero-disclaimer-box" role="note">
+        <svg
+          class="disclaimer-icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>Estimasi berdasarkan asumsi, bukan jaminan.</span>
+      </div>
+
       <!-- Rincian Ringkasan Finansial Lega & Berstruktur Vertikal -->
       <div class="summary-list">
         <!-- 1. Estimasi Tabungan Emas Cicil per Bulan -->
@@ -185,12 +206,13 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
           <strong class="row-value shiny-gold-nominal">{{ formatRupiah(nilaiEmasAkhir) }}</strong>
         </div>
 
-        <!-- 3. Proteksi Nilai Aset (Gain Inflasi) -->
+        <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral menggantikan Proteksi Nilai Aset (Gain) -->
+        <!-- 3. Estimasi Selisih Nilai Emas -->
         <div class="summary-row">
           <div>
-            <span class="row-title">Proteksi Nilai Aset (Gain)</span>
+            <span class="row-title">Estimasi Selisih Nilai Emas</span>
             <small class="row-desc">
-              Pertumbuhan nilai menjaga daya beli dari inflasi
+              Estimasi selisih nilai buyback masa depan terhadap modal awal hari ini
             </small>
           </div>
           <strong class="row-value text-gain">
@@ -232,9 +254,10 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
         />
       </div>
 
+      <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral disclaimer dan penghapusan kata menjamin -->
       <!-- Catatan Edukasi & Transparansi Finansial -->
       <p class="transparency-note">
-        Catatan: Simulasi ini merupakan alat bantu estimasi finansial menggunakan asumsi kenaikan harga emas historis 7% per tahun dan bukan jaminan kepastian harga di masa depan. Pembulatan gramasi emas dilakukan ke atas untuk menjamin kecukupan dana saat pencairan.
+        Catatan: Simulasi ini merupakan alat bantu estimasi finansial menggunakan asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan kepastian harga di masa depan. Pembulatan gramasi emas dilakukan ke atas agar dana lebih mencukupi (estimasi) saat pencairan.
       </p>
     </div>
   </section>
@@ -436,6 +459,28 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   line-height: var(--g-kit-line-height-atom);
   color: #cbd5e1;
   text-align: center;
+}
+
+.hero-disclaimer-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--g-kit-black-10, #f8fafc);
+  border: 1px solid var(--g-kit-black-20, #e2e8f0);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+  font-size: var(--g-kit-font-size-atom, 11px);
+  font-weight: var(--g-kit-font-weight-semibold, 600);
+  color: var(--g-kit-black-70, #475569);
+  text-align: center;
+}
+
+.disclaimer-icon {
+  flex-shrink: 0;
+  color: var(--g-kit-black-60, #64748b);
 }
 
 /* Rincian Ringkasan Data */

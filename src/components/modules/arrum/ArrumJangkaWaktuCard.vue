@@ -152,12 +152,12 @@ const onSelectChip = (year: number): void => {
         </button>
       </div>
 
+      <!-- TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral asumsi 7% per tahun tanpa klaim 10 tahun terakhir -->
       <!-- Keterangan Asumsi Laju Pertumbuhan Emas -->
       <div class="assumption-box">
-        <div class="assumption-title">Asumsi Kenaikan Emas: 7% per Tahun</div>
+        <div class="assumption-title">Asumsi Simulasi: 7% per Tahun</div>
         <p class="assumption-desc">
-          Ditetapkan berdasarkan rata-rata pertumbuhan harga emas fisik Galeri 24 selama 10 tahun terakhir
-          sebagai tolak ukur konservatif untuk melindungi daya beli dari inflasi biaya haji.
+          Asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan.
         </p>
       </div>
     </div>
