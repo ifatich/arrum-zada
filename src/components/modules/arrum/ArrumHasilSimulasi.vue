@@ -88,7 +88,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
     </div>
 
     <!-- Alert Peringatan Jika Waktu Tidak Valid -->
-    <div v-else-if="errorMessage && totalKebutuhan > 0" class="mb-3">
+    <div v-if="!hasPriceError && errorMessage && totalKebutuhan > 0" class="mb-3">
       <GAlert
         :label="errorMessage"
         color="red"
@@ -125,6 +125,29 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
       <p class="empty-text">
         Masukkan target kebutuhan dana dan jangka waktu menabung pada formulir di sebelah kiri
         untuk melihat rekomendasi gramasi emas, estimasi komitmen bulanan, dan proyeksi nilai di masa depan.
+      </p>
+    </div>
+
+    <!-- State Pemandu (Saat Kebutuhan Dana Sudah Diisi, Tetapi Tahun Belum Diisi / Di Luar 1–30) -->
+    <div v-else-if="!hasPriceError && totalKebutuhan > 0 && !isValidTahun" class="empty-simulation-panel pending-year-panel">
+      <div class="empty-icon-wrap pending-icon" aria-hidden="true">
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <h3 class="empty-title">Lengkapi Lama Menabung</h3>
+      <p class="empty-text">
+        Isi lama menabung antara 1 sampai 30 tahun untuk melihat hasil.
       </p>
     </div>
 
@@ -322,6 +345,11 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   background: #f8fafc;
   border-radius: 12px;
   border: 1.5px dashed #cbd5e1;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .empty-icon-wrap {
@@ -334,6 +362,11 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   align-items: center;
   justify-content: center;
   color: #64748b;
+}
+
+.pending-icon {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .empty-title {
