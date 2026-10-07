@@ -48,6 +48,12 @@ jobs:
       - name: Fetch Live Gold Prices from Galeri 24 Server
         run: node scripts/fetch-gold-price.mjs
 
+      - name: Type check (TypeScript)
+        run: pnpm type-check
+
+      - name: Run unit tests
+        run: pnpm test
+
       - name: Build application
         run: pnpm build
 
