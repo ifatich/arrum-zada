@@ -291,7 +291,8 @@ Tanggal Pembaruan Harga: ${tanggalAcuan.value} (${waktuUpdate.value})
 - Jangka Waktu Rencana: ${tahunInvestasi.value} Tahun (${totalBulan.value} Bulan)
 - Emas Batangan yang Diperlukan: ${formatNumber(gramasiEmas.value)} Gram
 - Modal Awal Emas Hari Ini: ${formatRupiah(nilaiEmasHariIni.value)}
-- Estimasi Tabungan Bulanan: ±${formatRupiah(tabunganPerBulanRp.value)}/bln (±${tabunganPerBulanGram.value} gr/bln)
+- Estimasi Tabungan Emas Cicil per Bulan: ±${formatRupiah(tabunganPerBulanRp.value)}/bln (±${tabunganPerBulanGram.value} gr/bln, selama ${totalBulan.value} bulan)
+  (Harga emas dikunci saat akad, cicilan tetap setiap bulan selama ${totalBulan.value} bulan. Harga akad mengikuti harga resmi Galeri 24 pada saat transaksi. Belum termasuk biaya lain yang berlaku saat akad.)
 - Estimasi Nilai Emas saat Berangkat: ${formatRupiah(nilaiEmasAkhir.value)}
 - Proteksi Nilai Aset (Gain Inflasi): +${formatRupiah(selisihPertumbuhanRp.value)} (+${persentasePertumbuhan.value}%)
 

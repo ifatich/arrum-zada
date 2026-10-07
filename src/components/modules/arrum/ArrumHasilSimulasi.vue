@@ -160,13 +160,16 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
 
       <!-- Rincian Ringkasan Finansial Lega & Berstruktur Vertikal -->
       <div class="summary-list">
-        <!-- 1. Estimasi Tabungan Rutin -->
+        <!-- 1. Estimasi Tabungan Emas Cicil per Bulan -->
         <div class="summary-row">
           <div>
-            <span class="row-title">Estimasi Tabungan Rutin</span>
+            <span class="row-title">Estimasi Tabungan Emas Cicil per Bulan</span>
             <small class="row-desc">
               Setara ± {{ tabunganPerBulanGram }} gr/bulan (selama {{ totalBulan }} bulan)
             </small>
+            <p class="row-cicil-subtext">
+              Harga emas dikunci saat akad, cicilan tetap setiap bulan selama {{ totalBulan }} bulan. Harga akad mengikuti harga resmi Galeri 24 pada saat transaksi. Belum termasuk biaya lain yang berlaku saat akad.
+            </p>
           </div>
           <strong class="row-value">± {{ formatRupiah(tabunganPerBulanRp) }} / bln</strong>
         </div>
@@ -465,6 +468,15 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   line-height: var(--g-kit-line-height-omega);
   color: var(--g-kit-black-60, #64748b);
   margin-top: 2px;
+}
+
+.row-cicil-subtext {
+  display: block;
+  font-size: var(--g-kit-font-size-atom, 11px);
+  line-height: 1.45;
+  color: var(--g-kit-black-60, #64748b);
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 .row-value {

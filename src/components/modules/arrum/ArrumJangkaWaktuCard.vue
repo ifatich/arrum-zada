@@ -102,7 +102,7 @@ const onSelectChip = (year: number): void => {
       <div>
         <h2 id="heading-jangka-waktu" class="card-heading">Jangka Waktu Perencanaan</h2>
         <p class="card-desc">
-          Berapa lama nasabah berencana mengumpulkan emas hingga waktu keberangkatan.
+          Berapa lama nasabah berencana mengumpulkan emas hingga waktu keberangkatan. Tenor cicilan sama dengan lama menabung hingga waktu emas dicairkan atau dijual.
         </p>
       </div>
     </div>
