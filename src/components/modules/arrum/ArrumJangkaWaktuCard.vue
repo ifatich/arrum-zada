@@ -5,7 +5,9 @@
  * Menggunakan InputNominalEnd Kitvue, tombol chips cepat (5, 10, 15, 20, 25 tahun),
  * dan informasi transparansi asumsi pertumbuhan harga emas historis 7% per tahun.
  */
+import { ref } from 'vue'
 import { InputNominalEnd } from '@/components'
+import { normalizeTahunInput } from '@/utils/normalizeInput'
 
 /** Interface props untuk jangka waktu perencanaan */
 export interface ArrumJangkaWaktuCardProps {
@@ -25,6 +27,67 @@ export interface ArrumJangkaWaktuCardEmits {
 
 defineProps<ArrumJangkaWaktuCardProps>()
 const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
+
+/** Pesan bantu jika input mengandung pemisah desimal yang dipotong */
+const tahunHelperText = ref<string>('')
+
+/**
+ * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, dll) di fase capture
+ */
+const handleKeydownCapture = (e: KeyboardEvent): void => {
+  if (e.ctrlKey || e.metaKey) {
+    e.stopPropagation()
+    return
+  }
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+    e.stopPropagation()
+    return
+  }
+}
+
+/**
+ * Tangkap paste pada fase capture dan normalisasi ke bilangan bulat (maks 2 digit)
+ */
+const handlePasteCapture = (e: ClipboardEvent): void => {
+  const text = e.clipboardData?.getData('text')
+  if (text !== undefined && text !== null) {
+    e.preventDefault()
+    const { value, hadDecimal } = normalizeTahunInput(text)
+    tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
+    emit('update:waktuInvestasi', value)
+  }
+}
+
+/**
+ * Tangkap drop pada fase capture
+ */
+const handleDropCapture = (e: DragEvent): void => {
+  const text = e.dataTransfer?.getData('text')
+  if (text !== undefined && text !== null) {
+    e.preventDefault()
+    const { value, hadDecimal } = normalizeTahunInput(text)
+    tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
+    emit('update:waktuInvestasi', value)
+  }
+}
+
+/**
+ * Normalisasi saat update dari input
+ */
+const handleUpdate = (val: string): void => {
+  const { value, hadDecimal } = normalizeTahunInput(val)
+  if (hadDecimal) {
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
+  } else if (!val || (!val.includes('.') && !val.includes(','))) {
+    tahunHelperText.value = ''
+  }
+  emit('update:waktuInvestasi', value)
+}
+
+const onSelectChip = (year: number): void => {
+  tahunHelperText.value = ''
+  emit('selectYear', year)
+}
 </script>
 
 <template>
@@ -42,7 +105,12 @@ const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
 
     <div class="form-vertical-stack">
       <!-- Input Durasi dengan Unit 'tahun' -->
-      <div class="field-container">
+      <div
+        class="field-container"
+        @keydown.capture="handleKeydownCapture"
+        @paste.capture="handlePasteCapture"
+        @drop.capture="handleDropCapture"
+      >
         <InputNominalEnd
           id="sim-tahun"
           title="Lama Mengumpulkan Emas"
@@ -50,8 +118,11 @@ const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
           placeholder="10"
           delimeter="none"
           :model-value="waktuInvestasi"
-          @update:model-value="(val: string) => emit('update:waktuInvestasi', val)"
+          @update:model-value="handleUpdate"
         />
+        <div v-if="tahunHelperText" class="tahun-helper-note" role="status">
+          {{ tahunHelperText }}
+        </div>
       </div>
 
       <!-- Pilihan Cepat Tahun (Chips) -->
@@ -63,7 +134,7 @@ const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
           class="year-chip-btn"
           :class="{ active: tahunInvestasi === year }"
           :aria-pressed="tahunInvestasi === year"
-          @click="emit('selectYear', year)"
+          @click="onSelectChip(year)"
         >
           {{ year }} Tahun
         </button>
@@ -136,6 +207,17 @@ const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.tahun-helper-note {
+  font-size: var(--g-kit-font-size-atom, 12px);
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 .chips-container {

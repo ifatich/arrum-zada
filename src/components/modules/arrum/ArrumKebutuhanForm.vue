@@ -6,6 +6,7 @@
  * menggunakan komponen InputNominalStart Kitvue.
  */
 import { InputNominalStart } from '@/components'
+import { normalizeNominalInput } from '@/utils/normalizeInput'
 
 /** Interface props untuk formulir kebutuhan dana haji */
 export interface ArrumKebutuhanFormProps {
@@ -32,6 +33,55 @@ export interface ArrumKebutuhanFormEmits {
 
 defineProps<ArrumKebutuhanFormProps>()
 const emit = defineEmits<ArrumKebutuhanFormEmits>()
+
+/**
+ * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, C, X, A, Z) dan panah navigasi
+ * oleh handler onlyNumber bawaan Kitvue dengan menghentikan propagasi di fase capture.
+ */
+const handleKeydownCapture = (e: KeyboardEvent): void => {
+  if (e.ctrlKey || e.metaKey) {
+    e.stopPropagation()
+    return
+  }
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+    e.stopPropagation()
+    return
+  }
+}
+
+/**
+ * Menangkap event paste pada fase capture untuk membersihkan data sebelum masuk ke komponen
+ */
+const handlePasteCapture = (e: ClipboardEvent, field: 'pelunasan' | 'persiapan' | 'keperluan'): void => {
+  const text = e.clipboardData?.getData('text')
+  if (text !== undefined && text !== null) {
+    e.preventDefault()
+    const clean = normalizeNominalInput(text)
+    handleUpdate(field, clean)
+  }
+}
+
+/**
+ * Menangkap event drag & drop pada fase capture
+ */
+const handleDropCapture = (e: DragEvent, field: 'pelunasan' | 'persiapan' | 'keperluan'): void => {
+  const text = e.dataTransfer?.getData('text')
+  if (text !== undefined && text !== null) {
+    e.preventDefault()
+    const clean = normalizeNominalInput(text)
+    handleUpdate(field, clean)
+  }
+}
+
+/**
+ * Normalisasi konsisten untuk semua jalur pembaruan nilai
+ */
+const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: string): void => {
+  const clean = normalizeNominalInput(val)
+  if (field === 'pelunasan') emit('update:pelunasan', clean)
+  else if (field === 'persiapan') emit('update:persiapan', clean)
+  else if (field === 'keperluan') emit('update:keperluan', clean)
+}
 </script>
 
 <template>
@@ -50,7 +100,12 @@ const emit = defineEmits<ArrumKebutuhanFormEmits>()
     <!-- Form Input Kebutuhan Dana -->
     <div class="form-vertical-stack">
       <!-- Pos 1: Pelunasan Porsi Haji -->
-      <div class="field-container">
+      <div
+        class="field-container"
+        @keydown.capture="handleKeydownCapture"
+        @paste.capture="(e) => handlePasteCapture(e, 'pelunasan')"
+        @drop.capture="(e) => handleDropCapture(e, 'pelunasan')"
+      >
         <label class="field-label" for="sim-pelunasan">
           Biaya Pelunasan Porsi Haji (BPIH)
         </label>
@@ -62,13 +117,18 @@ const emit = defineEmits<ArrumKebutuhanFormEmits>()
           unit="Rp"
           placeholder="0"
           :model-value="pelunasan"
-          @update:model-value="(val: string) => emit('update:pelunasan', val)"
+          @update:model-value="(val: string) => handleUpdate('pelunasan', val)"
         />
         <div class="terbilang-indicator">{{ getTerbilang(pelunasan) }}</div>
       </div>
 
       <!-- Pos 2: Persiapan Haji & Living Cost -->
-      <div class="field-container">
+      <div
+        class="field-container"
+        @keydown.capture="handleKeydownCapture"
+        @paste.capture="(e) => handlePasteCapture(e, 'persiapan')"
+        @drop.capture="(e) => handleDropCapture(e, 'persiapan')"
+      >
         <label class="field-label" for="sim-persiapan">
           Persiapan Keberangkatan &amp; Living Cost
         </label>
@@ -80,13 +140,18 @@ const emit = defineEmits<ArrumKebutuhanFormEmits>()
           unit="Rp"
           placeholder="0"
           :model-value="persiapan"
-          @update:model-value="(val: string) => emit('update:persiapan', val)"
+          @update:model-value="(val: string) => handleUpdate('persiapan', val)"
         />
         <div class="terbilang-indicator">{{ getTerbilang(persiapan) }}</div>
       </div>
 
       <!-- Pos 3: Keperluan Lain & Cadangan -->
-      <div class="field-container">
+      <div
+        class="field-container"
+        @keydown.capture="handleKeydownCapture"
+        @paste.capture="(e) => handlePasteCapture(e, 'keperluan')"
+        @drop.capture="(e) => handleDropCapture(e, 'keperluan')"
+      >
         <label class="field-label" for="sim-lainnya">
           Dana Cadangan &amp; Keperluan Lainnya
         </label>
@@ -98,7 +163,7 @@ const emit = defineEmits<ArrumKebutuhanFormEmits>()
           unit="Rp"
           placeholder="0"
           :model-value="keperluan"
-          @update:model-value="(val: string) => emit('update:keperluan', val)"
+          @update:model-value="(val: string) => handleUpdate('keperluan', val)"
         />
         <div class="terbilang-indicator">{{ getTerbilang(keperluan) }}</div>
       </div>
