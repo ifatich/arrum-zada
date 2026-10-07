@@ -83,10 +83,7 @@
 .input-group:has(#sim-persiapan:focus-visible),
 .input-group:has(#sim-lainnya:focus-visible),
 .input-group:has(#sim-tahun:focus-visible) {
-  border-color: var(--g-kit-broccoli-50, #0b4430) !important;
-  box-shadow: 0 0 0 2.5px var(--g-kit-broccoli-50, #0b4430) !important;
   border-radius: 6px !important;
-  outline: none !important;
 }
 
 #btn-copy-simulation:focus-visible,
