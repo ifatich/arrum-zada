@@ -3,8 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const outDir = path.resolve(__dirname, '../public/data')
-const outFile = path.join(outDir, 'gold-prices.json')
+const defaultOutDir = process.env.GOLD_PRICES_OUT_DIR || path.resolve(__dirname, '../public/data')
+const defaultOutFile = process.env.GOLD_PRICES_OUT_FILE || path.join(defaultOutDir, 'gold-prices.json')
+const defaultApiUrl = process.env.GOLD_PRICES_API_URL || 'https://galeri24.co.id/api/gold-prices/daily-update'
 
 export function getJakartaIsoString(now = new Date()) {
   const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -22,14 +23,15 @@ export function getJakartaIsoString(now = new Date()) {
 }
 
 export async function fetchLatestGoldPrices({
-  targetOutDir = outDir,
-  targetOutFile = outFile,
+  targetOutDir = defaultOutDir,
+  targetOutFile = defaultOutFile,
+  apiUrl = defaultApiUrl,
   fetchFn = globalThis.fetch,
   exitOnError = true,
 } = {}) {
   try {
     console.log('Fetching live gold prices directly from Galeri 24 server...')
-    const res = await fetchFn('https://galeri24.co.id/api/gold-prices/daily-update', {
+    const res = await fetchFn(apiUrl, {
       headers: {
         Accept: 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; ArrumZadaSync/1.0)',
@@ -75,5 +77,7 @@ export async function fetchLatestGoldPrices({
 // Eksekusi otomatis jika dijalankan langsung lewat CLI (node scripts/fetch-gold-price.mjs)
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
 if (isMain) {
-  fetchLatestGoldPrices()
+  fetchLatestGoldPrices().catch(() => {
+    process.exit(1)
+  })
 }

@@ -86,9 +86,9 @@ export function normalizeTahunInput(raw: string | number | null | undefined): No
   // Normalisasi angka nol di depan jika lebih dari 1 digit
   str = str.replace(/^0+(?=\d)/, '')
 
-  // Batasi maksimal 2 digit bilangan bulat
-  if (str.length > 2) {
-    str = str.slice(0, 2)
+  // Batasi maksimal 3 digit bilangan bulat (menampung paste hingga 3 digit seperti "125")
+  if (str.length > 3) {
+    str = str.slice(0, 3)
   }
 
   return {
