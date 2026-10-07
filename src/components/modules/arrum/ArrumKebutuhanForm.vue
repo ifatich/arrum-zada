@@ -9,6 +9,7 @@ import { ref } from 'vue'
 import { InputNominalStart } from '@/components'
 import { normalizeNominalInput } from '@/utils/normalizeInput'
 import { useNumericKeyboard } from '@/composables/useNumericKeyboard'
+import { useFormAriaWorkaround } from '@/composables/useFormAriaWorkaround'
 
 /** Interface props untuk formulir kebutuhan dana haji */
 export interface ArrumKebutuhanFormProps {
@@ -33,11 +34,34 @@ export interface ArrumKebutuhanFormEmits {
   (e: 'update:keperluan', value: string): void
 }
 
-defineProps<ArrumKebutuhanFormProps>()
+const props = defineProps<ArrumKebutuhanFormProps>()
 const emit = defineEmits<ArrumKebutuhanFormEmits>()
 
 const formContainerRef = ref<HTMLElement | null>(null)
 const { handleInteraction } = useNumericKeyboard(formContainerRef)
+
+// TODO: Workaround imperatif ini dihapus saat Kitvue diperbaiki (dukungan prop aria-* bawaan pada InputNominalStart).
+useFormAriaWorkaround(
+  formContainerRef,
+  [
+    {
+      inputId: 'sim-pelunasan',
+      labelId: 'label-sim-pelunasan',
+      describedByIds: ['subtext-sim-pelunasan', 'terbilang-sim-pelunasan'],
+    },
+    {
+      inputId: 'sim-persiapan',
+      labelId: 'label-sim-persiapan',
+      describedByIds: ['subtext-sim-persiapan', 'terbilang-sim-persiapan'],
+    },
+    {
+      inputId: 'sim-lainnya',
+      labelId: 'label-sim-lainnya',
+      describedByIds: ['subtext-sim-lainnya', 'terbilang-sim-lainnya'],
+    },
+  ],
+  ref(() => `${props.pelunasan}-${props.persiapan}-${props.keperluan}`)
+)
 
 /**
  * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, C, X, A, Z) dan panah navigasi
@@ -129,10 +153,10 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
         @paste.capture="(e) => handlePasteCapture(e, 'pelunasan')"
         @drop.capture="(e) => handleDropCapture(e, 'pelunasan')"
       >
-        <label class="field-label" for="sim-pelunasan">
+        <label id="label-sim-pelunasan" class="field-label" for="sim-pelunasan">
           Biaya Pelunasan Porsi Haji (BPIH)
         </label>
-        <span class="field-subtext">
+        <span id="subtext-sim-pelunasan" class="field-subtext">
           Target dana pelunasan saat nomor porsi keberangkatan tiba.
         </span>
         <InputNominalStart
@@ -144,7 +168,7 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           :model-value="pelunasan"
           @update:model-value="(val: string) => handleUpdate('pelunasan', val)"
         />
-        <div class="terbilang-indicator">{{ getTerbilang(pelunasan) }}</div>
+        <div id="terbilang-sim-pelunasan" class="terbilang-indicator">{{ getTerbilang(pelunasan) }}</div>
       </div>
 
       <!-- Pos 2: Persiapan Haji & Living Cost -->
@@ -154,10 +178,10 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
         @paste.capture="(e) => handlePasteCapture(e, 'persiapan')"
         @drop.capture="(e) => handleDropCapture(e, 'persiapan')"
       >
-        <label class="field-label" for="sim-persiapan">
+        <label id="label-sim-persiapan" class="field-label" for="sim-persiapan">
           Persiapan Keberangkatan &amp; Living Cost
         </label>
-        <span class="field-subtext">
+        <span id="subtext-sim-persiapan" class="field-subtext">
           Perlengkapan haji, biaya manasik, pakaian ihram, dan uang saku di tanah suci.
         </span>
         <InputNominalStart
@@ -169,7 +193,7 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           :model-value="persiapan"
           @update:model-value="(val: string) => handleUpdate('persiapan', val)"
         />
-        <div class="terbilang-indicator">{{ getTerbilang(persiapan) }}</div>
+        <div id="terbilang-sim-persiapan" class="terbilang-indicator">{{ getTerbilang(persiapan) }}</div>
       </div>
 
       <!-- Pos 3: Keperluan Lain & Cadangan -->
@@ -179,10 +203,10 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
         @paste.capture="(e) => handlePasteCapture(e, 'keperluan')"
         @drop.capture="(e) => handleDropCapture(e, 'keperluan')"
       >
-        <label class="field-label" for="sim-lainnya">
+        <label id="label-sim-lainnya" class="field-label" for="sim-lainnya">
           Dana Cadangan &amp; Keperluan Lainnya
         </label>
-        <span class="field-subtext">
+        <span id="subtext-sim-lainnya" class="field-subtext">
           Kebutuhan tambahan keluarga yang ditinggalkan atau oleh-oleh. Jika tidak ada, isi 0.
         </span>
         <InputNominalStart
@@ -194,7 +218,7 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           :model-value="keperluan"
           @update:model-value="(val: string) => handleUpdate('keperluan', val)"
         />
-        <div class="terbilang-indicator">{{ getTerbilang(keperluan) }}</div>
+        <div id="terbilang-sim-lainnya" class="terbilang-indicator">{{ getTerbilang(keperluan) }}</div>
       </div>
 
       <!-- Panel Rekap Total Target Dana -->

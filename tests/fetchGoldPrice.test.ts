@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import http from 'node:http'
+import { spawnSync } from 'node:child_process'
 import { fetchLatestGoldPrices, getJakartaIsoString } from '../scripts/fetch-gold-price.mjs'
 
 describe('fetchLatestGoldPrices - Automated Fetch Scenarios', () => {
@@ -115,5 +117,24 @@ describe('fetchLatestGoldPrices - Automated Fetch Scenarios', () => {
     const fixedDate = new Date('2026-10-07T06:55:00.000Z') // 13:55 WIB
     const isoWib = getJakartaIsoString(fixedDate)
     expect(isoWib).toBe('2026-10-07T13:55:00+07:00')
+  })
+
+  it('CLI Runner: Skenario jalur gagal-tanpa-file menghasilkan exit code 1 di proses CLI', () => {
+    const cliScript = path.resolve(__dirname, '../scripts/fetch-gold-price.mjs')
+    const nonExistentDir = path.join(tempDir, 'empty-dir')
+    const nonExistentFile = path.join(nonExistentDir, 'gold-prices.json')
+
+    const res = spawnSync(process.execPath, [cliScript], {
+      env: {
+        ...process.env,
+        GOLD_PRICES_OUT_DIR: nonExistentDir,
+        GOLD_PRICES_OUT_FILE: nonExistentFile,
+        GOLD_PRICES_API_URL: 'http://127.0.0.1:59999/non-existent-api',
+      },
+      encoding: 'utf-8',
+    })
+
+    expect(res.status).toBe(1)
+    expect(fs.existsSync(nonExistentFile)).toBe(false)
   })
 })

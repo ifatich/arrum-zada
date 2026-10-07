@@ -9,6 +9,7 @@ import { ref } from 'vue'
 import { InputNominalEnd } from '@/components'
 import { normalizeTahunInput } from '@/utils/normalizeInput'
 import { useNumericKeyboard } from '@/composables/useNumericKeyboard'
+import { useFormAriaWorkaround } from '@/composables/useFormAriaWorkaround'
 
 /** Interface props untuk jangka waktu perencanaan */
 export interface ArrumJangkaWaktuCardProps {
@@ -26,35 +27,82 @@ export interface ArrumJangkaWaktuCardEmits {
   (e: 'selectYear', year: number): void
 }
 
-defineProps<ArrumJangkaWaktuCardProps>()
+const props = defineProps<ArrumJangkaWaktuCardProps>()
 const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
 
 const formContainerRef = ref<HTMLElement | null>(null)
 const { handleInteraction } = useNumericKeyboard(formContainerRef)
 
-/** Pesan bantu jika input mengandung pemisah desimal yang dipotong */
+/** Pesan bantu jika input mengandung pemisah desimal yang dipotong atau melebihi 30 tahun */
 const tahunHelperText = ref<string>('')
 /** Flag penanda jika karakter desimal (. atau ,) baru saja ditekan */
 const hasEnteredDecimal = ref<boolean>(false)
 
+// TODO: Workaround imperatif ini dihapus saat Kitvue diperbaiki (dukungan prop aria-* bawaan pada InputNominalEnd).
+useFormAriaWorkaround(
+  formContainerRef,
+  [
+    {
+      inputId: 'sim-tahun',
+      labelId: 'label-sim-tahun',
+      labelText: 'Lama Mengumpulkan Emas',
+      describedByIds: ['helper-sim-tahun'],
+    },
+  ],
+  tahunHelperText
+)
+
+/**
+ * Evaluasi teks pesan bantu untuk tahun
+ */
+const evaluateHelperText = (value: string, hadDecimal: boolean, rawCurrent: string): void => {
+  const num = parseInt(value, 10)
+  if (num > 30) {
+    tahunHelperText.value = 'Maksimal 30 tahun'
+  } else if (hadDecimal || rawCurrent.includes('.') || rawCurrent.includes(',')) {
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
+  } else {
+    tahunHelperText.value = ''
+  }
+}
+
 /**
  * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, dll) di fase capture
- * serta mencegah pengetikan langsung desimal (. atau ,) dan angka pecahan berikutnya
+ * serta mencegah pengetikan langsung desimal (. atau ,) dan angka pecahan berikutnya.
+ * Mereset flag desimal jika seluruh teks dipilih atau ada seleksi aktif.
  */
 const handleKeydownCapture = (e: KeyboardEvent): void => {
+  const target = e.target as HTMLInputElement | null
+
   if (e.ctrlKey || e.metaKey) {
     e.stopPropagation()
     return
   }
+
+  // Jika teks sedang terseleksi (misal Ctrl/Cmd+A atau seleksi kursor):
+  // Pengetikan karakter apapun mengganti isi seleksi, sehingga desimal harus di-reset
+  const hasSelection =
+    target &&
+    target.selectionStart !== null &&
+    target.selectionEnd !== null &&
+    target.selectionStart !== target.selectionEnd
+
+  if (hasSelection) {
+    hasEnteredDecimal.value = false
+    tahunHelperText.value = ''
+  }
+
   if (e.key === 'Backspace' || e.key === 'Delete') {
     hasEnteredDecimal.value = false
     tahunHelperText.value = ''
     return
   }
+
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
     e.stopPropagation()
     return
   }
+
   if (e.key === '.' || e.key === ',' || e.key === 'Decimal') {
     e.preventDefault()
     e.stopPropagation()
@@ -62,7 +110,8 @@ const handleKeydownCapture = (e: KeyboardEvent): void => {
     tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
     return
   }
-  // Jika sebelumnya sudah menekan pemisah desimal, abaikan ketikan angka pecahan
+
+  // Jika sebelumnya sudah menekan pemisah desimal, abaikan ketikan angka pecahan berikutnya
   if (hasEnteredDecimal.value && /^\d$/.test(e.key)) {
     e.preventDefault()
     e.stopPropagation()
@@ -101,7 +150,8 @@ const handleBeforeInputCapture = (e: Event): void => {
         const current = target.value
         nextRaw = current.slice(0, target.selectionStart) + data + current.slice(target.selectionEnd)
       }
-      const { value } = normalizeTahunInput(nextRaw)
+      const { value, hadDecimal } = normalizeTahunInput(nextRaw)
+      evaluateHelperText(value, hadDecimal, nextRaw)
       target.value = value
       emit('update:waktuInvestasi', value)
     }
@@ -114,6 +164,20 @@ const handleBeforeInputCapture = (e: Event): void => {
     inputEvent.stopPropagation()
     tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
     return
+  }
+}
+
+/**
+ * Reset flag desimal saat blur (focusout) dan verifikasi batas maksimal tahun
+ */
+const handleBlur = (): void => {
+  hasEnteredDecimal.value = false
+  const inputEl = document.getElementById('sim-tahun') as HTMLInputElement | null
+  const num = parseInt(inputEl?.value || props.waktuInvestasi || '', 10)
+  if (num > 30) {
+    tahunHelperText.value = 'Maksimal 30 tahun'
+  } else {
+    tahunHelperText.value = ''
   }
 }
 
@@ -134,7 +198,7 @@ const handlePasteCapture = (e: ClipboardEvent): void => {
       nextRaw = current.slice(0, start) + text + current.slice(end)
     }
     const { value, hadDecimal } = normalizeTahunInput(nextRaw)
-    tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
+    evaluateHelperText(value, hadDecimal, nextRaw)
     if (target) {
       target.value = value
     }
@@ -151,7 +215,7 @@ const handleDropCapture = (e: DragEvent): void => {
     e.preventDefault()
     hasEnteredDecimal.value = false
     const { value, hadDecimal } = normalizeTahunInput(text)
-    tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
+    evaluateHelperText(value, hadDecimal, text)
     emit('update:waktuInvestasi', value)
   }
 }
@@ -163,10 +227,8 @@ const handleUpdate = (val: string): void => {
   const inputEl = document.getElementById('sim-tahun') as HTMLInputElement | null
   const rawCurrent = inputEl?.value || val
   const { value, hadDecimal } = normalizeTahunInput(rawCurrent)
-  if (hadDecimal || rawCurrent.includes('.') || rawCurrent.includes(',')) {
-    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
-  } else if (!val) {
-    tahunHelperText.value = ''
+  evaluateHelperText(value, hadDecimal, rawCurrent)
+  if (!val) {
     hasEnteredDecimal.value = false
   }
   emit('update:waktuInvestasi', value)
@@ -206,6 +268,7 @@ const onSelectChip = (year: number): void => {
         @beforeinput.capture="handleBeforeInputCapture"
         @paste.capture="handlePasteCapture"
         @drop.capture="handleDropCapture"
+        @focusout="handleBlur"
       >
         <InputNominalEnd
           id="sim-tahun"
@@ -217,8 +280,9 @@ const onSelectChip = (year: number): void => {
           pattern="[0-9]*"
           :model-value="waktuInvestasi"
           @update:model-value="handleUpdate"
+          @blur="handleBlur"
         />
-        <div v-if="tahunHelperText" class="tahun-helper-note" role="status">
+        <div v-if="tahunHelperText" id="helper-sim-tahun" class="tahun-helper-note" role="status">
           {{ tahunHelperText }}
         </div>
       </div>

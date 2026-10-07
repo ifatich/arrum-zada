@@ -66,8 +66,9 @@ describe('normalizeTahunInput', () => {
     expect(normalizeTahunInput('10,5')).toEqual({ value: '10', hadDecimal: true })
   })
 
-  it('membatasi maksimal 2 digit sehingga tidak menjadi 105', () => {
-    expect(normalizeTahunInput('105')).toEqual({ value: '10', hadDecimal: false })
+  it('menerima paste 125 tanpa memotong ke 12, dan membatasi maksimal 3 digit', () => {
+    expect(normalizeTahunInput('125')).toEqual({ value: '125', hadDecimal: false })
+    expect(normalizeTahunInput('1250')).toEqual({ value: '125', hadDecimal: false })
   })
 
   it('membersihkan karakter non-digit', () => {

@@ -584,6 +584,7 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
 .action-btn {
   flex: 1 1 calc(50% - 5px);
   min-width: 140px;
+  min-height: 44px !important;
 }
 
 .action-btn :deep(button:focus-visible) {
