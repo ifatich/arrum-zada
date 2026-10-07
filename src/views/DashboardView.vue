@@ -7,6 +7,7 @@
  *
  * Standar: Kitvue (kitvue-public), Vue 3 <script setup lang="ts">, DRY & Atomic Design.
  */
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { GAlert } from '@/components'
 import { useArrumSimulasi } from '@/composables/useArrumSimulasi'
 import {
@@ -57,6 +58,55 @@ const {
   handleCopySummary,
   handleReset,
 } = useArrumSimulasi()
+
+/** Ref elemen kolom hasil simulasi untuk IntersectionObserver */
+const resultColumnRef = ref<HTMLElement | null>(null)
+/** Status apakah kartu hasil sedang berada di dalam viewport */
+const isResultVisible = ref<boolean>(false)
+let resultObserver: IntersectionObserver | null = null
+
+/**
+ * Menentukan apakah sticky summary bar di mobile perlu ditampilkan:
+ * Hanya aktif jika input valid, total kebutuhan > 0, tidak ada error harga,
+ * dan kartu hasil belum terlihat di viewport.
+ */
+const showMobileStickySummary = computed<boolean>(() => {
+  return (
+    !hasPriceError.value &&
+    isValidTahun.value &&
+    totalKebutuhan.value > 0 &&
+    !isResultVisible.value
+  )
+})
+
+/**
+ * Menggulirkan layar secara halus ke kartu hasil simulasi saat tombol diklik
+ */
+const scrollToResult = (): void => {
+  if (resultColumnRef.value) {
+    resultColumnRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
+onMounted(() => {
+  if (resultColumnRef.value && typeof IntersectionObserver !== 'undefined') {
+    resultObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        isResultVisible.value = entry ? entry.isIntersecting : false
+      },
+      { threshold: 0.1 }
+    )
+    resultObserver.observe(resultColumnRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (resultObserver) {
+    resultObserver.disconnect()
+    resultObserver = null
+  }
+})
 </script>
 
 <template>
@@ -120,7 +170,7 @@ const {
       </div>
 
       <!-- Kolom Kanan: Hasil Simulasi & Presentasi Nasabah -->
-      <aside class="result-column">
+      <aside ref="resultColumnRef" class="result-column">
         <!-- Langkah 3: Hasil Simulasi Rencana Emas -->
         <ArrumHasilSimulasi
           :total-kebutuhan="totalKebutuhan"
@@ -147,6 +197,36 @@ const {
         />
       </aside>
     </main>
+
+    <!-- Sticky Bottom Summary Bar Khusus Mobile (< 768px) -->
+    <transition name="slide-up">
+      <aside
+        v-if="showMobileStickySummary"
+        id="mobile-sticky-summary-bar"
+        class="mobile-sticky-summary"
+        aria-label="Ringkasan Cepat Hasil Simulasi"
+      >
+        <div class="sticky-summary-content">
+          <div class="sticky-summary-data">
+            <div class="sticky-data-item">
+              <span class="sticky-label">Target Emas:</span>
+              <strong class="sticky-val">{{ formatNumber(gramasiEmas) }} gr</strong>
+            </div>
+            <div class="sticky-data-item">
+              <span class="sticky-label">Cicilan:</span>
+              <strong class="sticky-val">± {{ formatRupiah(tabunganPerBulanRp) }}/bln</strong>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="sticky-scroll-btn"
+            @click="scrollToResult"
+          >
+            Lihat Hasil Lengkap &darr;
+          </button>
+        </div>
+      </aside>
+    </transition>
   </div>
 </template>
 
@@ -230,7 +310,8 @@ const {
     background: #ffffff !important;
   }
 
-  .simulasi-toast {
+  .simulasi-toast,
+  .mobile-sticky-summary {
     display: none !important;
   }
 
@@ -242,5 +323,88 @@ const {
     position: static !important;
     margin-top: 20px;
   }
+}
+
+/* Sticky Bottom Summary Bar (Hanya Tampil di Mobile < 768px) */
+.mobile-sticky-summary {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-sticky-summary {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 990;
+    background: linear-gradient(135deg, #063d2c 0%, #0d5c41 100%);
+    border-top: 1px solid rgba(52, 211, 153, 0.4);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+    padding: 10px 16px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .sticky-summary-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .sticky-summary-data {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sticky-data-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .sticky-label {
+    font-size: 11px;
+    color: #e2e8f0;
+  }
+
+  .sticky-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .sticky-scroll-btn {
+    background: #00ab4e;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+
+  .sticky-scroll-btn:active {
+    transform: scale(0.96);
+  }
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 </style>
