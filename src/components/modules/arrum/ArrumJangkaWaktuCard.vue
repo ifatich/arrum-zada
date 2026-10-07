@@ -8,6 +8,7 @@
 import { ref } from 'vue'
 import { InputNominalEnd } from '@/components'
 import { normalizeTahunInput } from '@/utils/normalizeInput'
+import { useNumericKeyboard } from '@/composables/useNumericKeyboard'
 
 /** Interface props untuk jangka waktu perencanaan */
 export interface ArrumJangkaWaktuCardProps {
@@ -27,6 +28,9 @@ export interface ArrumJangkaWaktuCardEmits {
 
 defineProps<ArrumJangkaWaktuCardProps>()
 const emit = defineEmits<ArrumJangkaWaktuCardEmits>()
+
+const formContainerRef = ref<HTMLElement | null>(null)
+const { handleInteraction } = useNumericKeyboard(formContainerRef)
 
 /** Pesan bantu jika input mengandung pemisah desimal yang dipotong */
 const tahunHelperText = ref<string>('')
@@ -103,7 +107,13 @@ const onSelectChip = (year: number): void => {
       </div>
     </div>
 
-    <div class="form-vertical-stack">
+    <div
+      ref="formContainerRef"
+      class="form-vertical-stack"
+      @focusin.capture="handleInteraction"
+      @pointerdown.capture="handleInteraction"
+      @touchstart.capture="handleInteraction"
+    >
       <!-- Input Durasi dengan Unit 'tahun' -->
       <div
         class="field-container"
@@ -117,6 +127,8 @@ const onSelectChip = (year: number): void => {
           unit="tahun"
           placeholder="10"
           delimeter="none"
+          inputmode="numeric"
+          pattern="[0-9]*"
           :model-value="waktuInvestasi"
           @update:model-value="handleUpdate"
         />

@@ -5,8 +5,10 @@
  * Terdiri dari 3 pos kebutuhan (BPIH, persiapan/living cost, cadangan/keperluan)
  * menggunakan komponen InputNominalStart Kitvue.
  */
+import { ref } from 'vue'
 import { InputNominalStart } from '@/components'
 import { normalizeNominalInput } from '@/utils/normalizeInput'
+import { useNumericKeyboard } from '@/composables/useNumericKeyboard'
 
 /** Interface props untuk formulir kebutuhan dana haji */
 export interface ArrumKebutuhanFormProps {
@@ -33,6 +35,9 @@ export interface ArrumKebutuhanFormEmits {
 
 defineProps<ArrumKebutuhanFormProps>()
 const emit = defineEmits<ArrumKebutuhanFormEmits>()
+
+const formContainerRef = ref<HTMLElement | null>(null)
+const { handleInteraction } = useNumericKeyboard(formContainerRef)
 
 /**
  * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, C, X, A, Z) dan panah navigasi
@@ -98,7 +103,13 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
     </div>
 
     <!-- Form Input Kebutuhan Dana -->
-    <div class="form-vertical-stack">
+    <div
+      ref="formContainerRef"
+      class="form-vertical-stack"
+      @focusin.capture="handleInteraction"
+      @pointerdown.capture="handleInteraction"
+      @touchstart.capture="handleInteraction"
+    >
       <!-- Pos 1: Pelunasan Porsi Haji -->
       <div
         class="field-container"
@@ -116,6 +127,8 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           id="sim-pelunasan"
           unit="Rp"
           placeholder="0"
+          inputmode="numeric"
+          pattern="[0-9]*"
           :model-value="pelunasan"
           @update:model-value="(val: string) => handleUpdate('pelunasan', val)"
         />
@@ -139,6 +152,8 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           id="sim-persiapan"
           unit="Rp"
           placeholder="0"
+          inputmode="numeric"
+          pattern="[0-9]*"
           :model-value="persiapan"
           @update:model-value="(val: string) => handleUpdate('persiapan', val)"
         />
@@ -162,6 +177,8 @@ const handleUpdate = (field: 'pelunasan' | 'persiapan' | 'keperluan', val: strin
           id="sim-lainnya"
           unit="Rp"
           placeholder="0"
+          inputmode="numeric"
+          pattern="[0-9]*"
           :model-value="keperluan"
           @update:model-value="(val: string) => handleUpdate('keperluan', val)"
         />
