@@ -586,6 +586,11 @@ const emit = defineEmits<ArrumHasilSimulasiEmits>()
   min-width: 140px;
 }
 
+.action-btn :deep(button:focus-visible) {
+  outline: 2px solid var(--g-kit-broccoli-50, #0b4430);
+  outline-offset: 2px;
+}
+
 .transparency-note {
   font-size: var(--g-kit-font-size-atom);
   line-height: var(--g-kit-line-height-atom);

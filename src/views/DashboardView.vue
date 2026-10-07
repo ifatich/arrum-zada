@@ -392,6 +392,11 @@ onBeforeUnmount(() => {
     transition: transform 0.15s ease, background-color 0.15s ease;
   }
 
+  .sticky-scroll-btn:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
   .sticky-scroll-btn:active {
     transform: scale(0.96);
   }

@@ -256,6 +256,11 @@ const onSelectChip = (year: number): void => {
   color: var(--g-kit-broccoli-50, #0b4430);
 }
 
+.year-chip-btn:focus-visible {
+  outline: 2px solid var(--g-kit-broccoli-50, #0b4430);
+  outline-offset: 2px;
+}
+
 .year-chip-btn.active {
   background: var(--g-kit-broccoli-50, #0b4430);
   color: #ffffff;
