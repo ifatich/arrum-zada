@@ -79,9 +79,10 @@ export function formatWibTimeFromIso(isoStr?: string): string {
 
 /**
  * Mendapatkan string tanggal hari ini (YYYY-MM-DD) dalam zona waktu Asia/Jakarta
+ * @param referenceDate - Opsional: Objek Date acuan (default: new Date())
  */
-export function getJakartaTodayIsoDate(): string {
-  const d = new Date()
+export function getJakartaTodayIsoDate(referenceDate?: Date): string {
+  const d = referenceDate || new Date()
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Jakarta',
     year: 'numeric',
@@ -94,10 +95,11 @@ export function getJakartaTodayIsoDate(): string {
 /**
  * Mengecek apakah tanggal data sesuai dengan tanggal hari ini di zona Asia/Jakarta
  * @param rawDateStr - String tanggal dari data (YYYY-MM-DD)
+ * @param referenceDate - Opsional: Objek Date acuan untuk pengujian deterministik
  */
-export function isDateTodayJakarta(rawDateStr?: string): boolean {
+export function isDateTodayJakarta(rawDateStr?: string, referenceDate?: Date): boolean {
   if (!rawDateStr) return false
-  const today = getJakartaTodayIsoDate()
+  const today = getJakartaTodayIsoDate(referenceDate)
   return rawDateStr.trim().startsWith(today)
 }
 

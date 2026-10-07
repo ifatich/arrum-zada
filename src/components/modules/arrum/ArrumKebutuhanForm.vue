@@ -55,13 +55,25 @@ const handleKeydownCapture = (e: KeyboardEvent): void => {
 }
 
 /**
- * Menangkap event paste pada fase capture untuk membersihkan data sebelum masuk ke komponen
+ * Menangkap event paste pada fase capture untuk membersihkan data sebelum masuk ke komponen,
+ * dengan memperhitungkan seleksi teks terpilih atau posisi kursor.
  */
 const handlePasteCapture = (e: ClipboardEvent, field: 'pelunasan' | 'persiapan' | 'keperluan'): void => {
   const text = e.clipboardData?.getData('text')
   if (text !== undefined && text !== null) {
     e.preventDefault()
-    const clean = normalizeNominalInput(text)
+    const target = e.target as HTMLInputElement | null
+    let nextRaw = text
+    if (target && target.selectionStart !== null && target.selectionEnd !== null) {
+      const current = target.value
+      const start = target.selectionStart
+      const end = target.selectionEnd
+      nextRaw = current.slice(0, start) + text + current.slice(end)
+    }
+    const clean = normalizeNominalInput(nextRaw)
+    if (target) {
+      target.value = clean
+    }
     handleUpdate(field, clean)
   }
 }

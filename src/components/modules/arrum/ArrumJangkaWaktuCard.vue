@@ -34,30 +34,110 @@ const { handleInteraction } = useNumericKeyboard(formContainerRef)
 
 /** Pesan bantu jika input mengandung pemisah desimal yang dipotong */
 const tahunHelperText = ref<string>('')
+/** Flag penanda jika karakter desimal (. atau ,) baru saja ditekan */
+const hasEnteredDecimal = ref<boolean>(false)
 
 /**
  * Mencegah pemblokiran shortcut keyboard (Ctrl/Cmd+V, dll) di fase capture
+ * serta mencegah pengetikan langsung desimal (. atau ,) dan angka pecahan berikutnya
  */
 const handleKeydownCapture = (e: KeyboardEvent): void => {
   if (e.ctrlKey || e.metaKey) {
     e.stopPropagation()
     return
   }
+  if (e.key === 'Backspace' || e.key === 'Delete') {
+    hasEnteredDecimal.value = false
+    tahunHelperText.value = ''
+    return
+  }
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
     e.stopPropagation()
+    return
+  }
+  if (e.key === '.' || e.key === ',' || e.key === 'Decimal') {
+    e.preventDefault()
+    e.stopPropagation()
+    hasEnteredDecimal.value = true
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
+    return
+  }
+  // Jika sebelumnya sudah menekan pemisah desimal, abaikan ketikan angka pecahan
+  if (hasEnteredDecimal.value && /^\d$/.test(e.key)) {
+    e.preventDefault()
+    e.stopPropagation()
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
     return
   }
 }
 
 /**
- * Tangkap paste pada fase capture dan normalisasi ke bilangan bulat (maks 2 digit)
+ * Tangkap beforeinput untuk menangani mobile virtual keyboard / IME (keyCode 229)
+ * yang mengetik titik atau koma atau pecahan desimal sebelum dimasukkan ke dalam elemen input
+ */
+const handleBeforeInputCapture = (e: Event): void => {
+  const inputEvent = e as InputEvent
+  if (inputEvent.inputType === 'deleteContentBackward' || inputEvent.inputType === 'deleteContentForward') {
+    hasEnteredDecimal.value = false
+    tahunHelperText.value = ''
+    return
+  }
+
+  const data = inputEvent.data
+  if (!data) return
+
+  // Kasus 1: Input berupa atau mengandung pemisah desimal (. atau ,)
+  if (data.includes('.') || data.includes(',')) {
+    inputEvent.preventDefault()
+    inputEvent.stopPropagation()
+    hasEnteredDecimal.value = true
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
+
+    // Jika data berupa potongan teks lengkap (misal "10.5" atau "10,5" dari IME / autokomplit)
+    const target = inputEvent.target as HTMLInputElement | null
+    if (target) {
+      let nextRaw = data
+      if (target.selectionStart !== null && target.selectionEnd !== null) {
+        const current = target.value
+        nextRaw = current.slice(0, target.selectionStart) + data + current.slice(target.selectionEnd)
+      }
+      const { value } = normalizeTahunInput(nextRaw)
+      target.value = value
+      emit('update:waktuInvestasi', value)
+    }
+    return
+  }
+
+  // Kasus 2: Sedang dalam mode pecahan desimal (setelah menekan . atau ,), cegah angka pecahan berikutnya
+  if (hasEnteredDecimal.value) {
+    inputEvent.preventDefault()
+    inputEvent.stopPropagation()
+    tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
+    return
+  }
+}
+
+/**
+ * Tangkap paste pada fase capture dengan memperhitungkan seleksi teks atau posisi kursor
  */
 const handlePasteCapture = (e: ClipboardEvent): void => {
   const text = e.clipboardData?.getData('text')
   if (text !== undefined && text !== null) {
     e.preventDefault()
-    const { value, hadDecimal } = normalizeTahunInput(text)
+    hasEnteredDecimal.value = false
+    const target = e.target as HTMLInputElement | null
+    let nextRaw = text
+    if (target && target.selectionStart !== null && target.selectionEnd !== null) {
+      const current = target.value
+      const start = target.selectionStart
+      const end = target.selectionEnd
+      nextRaw = current.slice(0, start) + text + current.slice(end)
+    }
+    const { value, hadDecimal } = normalizeTahunInput(nextRaw)
     tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
+    if (target) {
+      target.value = value
+    }
     emit('update:waktuInvestasi', value)
   }
 }
@@ -69,6 +149,7 @@ const handleDropCapture = (e: DragEvent): void => {
   const text = e.dataTransfer?.getData('text')
   if (text !== undefined && text !== null) {
     e.preventDefault()
+    hasEnteredDecimal.value = false
     const { value, hadDecimal } = normalizeTahunInput(text)
     tahunHelperText.value = hadDecimal ? 'Isi dengan bilangan bulat (tahun)' : ''
     emit('update:waktuInvestasi', value)
@@ -79,16 +160,20 @@ const handleDropCapture = (e: DragEvent): void => {
  * Normalisasi saat update dari input
  */
 const handleUpdate = (val: string): void => {
-  const { value, hadDecimal } = normalizeTahunInput(val)
-  if (hadDecimal) {
+  const inputEl = document.getElementById('sim-tahun') as HTMLInputElement | null
+  const rawCurrent = inputEl?.value || val
+  const { value, hadDecimal } = normalizeTahunInput(rawCurrent)
+  if (hadDecimal || rawCurrent.includes('.') || rawCurrent.includes(',')) {
     tahunHelperText.value = 'Isi dengan bilangan bulat (tahun)'
-  } else if (!val || (!val.includes('.') && !val.includes(','))) {
+  } else if (!val) {
     tahunHelperText.value = ''
+    hasEnteredDecimal.value = false
   }
   emit('update:waktuInvestasi', value)
 }
 
 const onSelectChip = (year: number): void => {
+  hasEnteredDecimal.value = false
   tahunHelperText.value = ''
   emit('selectYear', year)
 }
@@ -118,6 +203,7 @@ const onSelectChip = (year: number): void => {
       <div
         class="field-container"
         @keydown.capture="handleKeydownCapture"
+        @beforeinput.capture="handleBeforeInputCapture"
         @paste.capture="handlePasteCapture"
         @drop.capture="handleDropCapture"
       >

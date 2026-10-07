@@ -9,8 +9,14 @@ import 'kitvue-public/src/assets/scss/g-kit.scss'
 import './assets/styles/tokens.css'
 
 // Polyfill legacy webpack require() used in kitvue components
-if (typeof (window as any).require === 'undefined') {
-  ;(window as any).require = (path: string) => path
+declare global {
+  interface Window {
+    require?: (path: string) => string
+  }
+}
+
+if (typeof window.require === 'undefined') {
+  window.require = (path: string) => path
 }
 
 const app = createApp(App)

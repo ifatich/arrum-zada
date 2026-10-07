@@ -65,17 +65,47 @@ const resultColumnRef = ref<HTMLElement | null>(null)
 const isResultVisible = ref<boolean>(false)
 let resultObserver: IntersectionObserver | null = null
 
+/** Status apakah input sedang aktif/fokus (menandakan virtual keyboard aktif di mobile) */
+const isInputFocused = ref<boolean>(false)
+/** Status deteksi keyboard virtual berdasarkan shrinkage window.visualViewport */
+const isVirtualKeyboardOpen = ref<boolean>(false)
+
+const handleFocusIn = (e: FocusEvent): void => {
+  const target = e.target
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  ) {
+    isInputFocused.value = true
+  }
+}
+
+const handleFocusOut = (): void => {
+  isInputFocused.value = false
+}
+
+const handleViewportResize = (): void => {
+  if (typeof window !== 'undefined' && window.visualViewport) {
+    // Virtual keyboard biasanya mengurangi tinggi visualViewport minimal 150px
+    const isShrunk = window.visualViewport.height < window.innerHeight - 100
+    isVirtualKeyboardOpen.value = isShrunk
+  }
+}
+
 /**
  * Menentukan apakah sticky summary bar di mobile perlu ditampilkan:
  * Hanya aktif jika input valid, total kebutuhan > 0, tidak ada error harga,
- * dan kartu hasil belum terlihat di viewport.
+ * kartu hasil belum terlihat di viewport, dan keyboard virtual / input tidak sedang aktif.
  */
 const showMobileStickySummary = computed<boolean>(() => {
   return (
     !hasPriceError.value &&
     isValidTahun.value &&
     totalKebutuhan.value > 0 &&
-    !isResultVisible.value
+    !isResultVisible.value &&
+    !isInputFocused.value &&
+    !isVirtualKeyboardOpen.value
   )
 })
 
@@ -99,12 +129,24 @@ onMounted(() => {
     )
     resultObserver.observe(resultColumnRef.value)
   }
+
+  window.addEventListener('focusin', handleFocusIn)
+  window.addEventListener('focusout', handleFocusOut)
+  if (typeof window !== 'undefined' && window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportResize)
+  }
 })
 
 onBeforeUnmount(() => {
   if (resultObserver) {
     resultObserver.disconnect()
     resultObserver = null
+  }
+
+  window.removeEventListener('focusin', handleFocusIn)
+  window.removeEventListener('focusout', handleFocusOut)
+  if (typeof window !== 'undefined' && window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', handleViewportResize)
   }
 })
 </script>

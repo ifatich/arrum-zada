@@ -75,11 +75,17 @@ export function useNumericKeyboard(containerRef: Ref<HTMLElement | null>) {
       applyNumericAttrs()
     })
 
-    if (containerRef.value && typeof MutationObserver !== 'undefined') {
+    const container = containerRef.value
+    if (container) {
+      container.addEventListener('focusin', handleInteraction, true)
+      container.addEventListener('pointerdown', handleInteraction, true)
+    }
+
+    if (container && typeof MutationObserver !== 'undefined') {
       observer = new MutationObserver(() => {
         applyNumericAttrs()
       })
-      observer.observe(containerRef.value, {
+      observer.observe(container, {
         childList: true,
         subtree: true,
         attributes: true,
@@ -89,9 +95,15 @@ export function useNumericKeyboard(containerRef: Ref<HTMLElement | null>) {
   })
 
   onBeforeUnmount(() => {
+    // TODO: hapus workaround ini saat komponen InputText/InputNominal Kitvue diperbaiki untuk mendukung inputmode numerik bawaan.
     if (observer) {
       observer.disconnect()
       observer = null
+    }
+    const container = containerRef.value
+    if (container) {
+      container.removeEventListener('focusin', handleInteraction, true)
+      container.removeEventListener('pointerdown', handleInteraction, true)
     }
   })
 

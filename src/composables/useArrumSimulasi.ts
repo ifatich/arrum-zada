@@ -87,9 +87,9 @@ export function useArrumSimulasi() {
       lastSyncSuccess.value = true
 
       if (wasLoaded && prevPrice === data.hargaJual && prevDate === data.tanggalAcuan) {
-        triggerSyncFeedback('Data harga sudah yang terbaru (tidak ada pembaruan).', 'info')
+        triggerSyncFeedback(`Data harga dimuat (per ${data.tanggalAcuan})`, 'info')
       } else {
-        triggerSyncFeedback(`Harga emas resmi Galeri 24 berhasil dimuat (per ${data.tanggalAcuan}).`, 'success')
+        triggerSyncFeedback(`Data harga dimuat (per ${data.tanggalAcuan})`, 'success')
       }
     } catch {
       lastSyncSuccess.value = false
@@ -283,9 +283,10 @@ export function useArrumSimulasi() {
    */
   const handleCopySummary = async (): Promise<void> => {
     const f = faktorKenaikan.value
+    // TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral ringkasan salin (estimasi selisih nilai emas dan klausul asumsi 7% sejak 2000 bukan jaminan)
     const textSummary = `*RINGKASAN SIMULASI PERENCANAAN EMAS HAJI*
 Program: Arrum Zada - Perencanaan Finansial Haji
-Tanggal Pembaruan Harga: ${tanggalAcuan.value} (${waktuUpdate.value})
+Tanggal Pembaruan Harga: ${tanggalAcuan.value}${waktuUpdate.value ? ` (${waktuUpdate.value})` : ''}
 -----------------------------------------
 - Total Target Kebutuhan Haji: ${formatRupiah(totalKebutuhan.value)}
 - Jangka Waktu Rencana: ${tahunInvestasi.value} Tahun (${totalBulan.value} Bulan)
@@ -294,7 +295,6 @@ Tanggal Pembaruan Harga: ${tanggalAcuan.value} (${waktuUpdate.value})
 - Estimasi Tabungan Emas Cicil per Bulan: ±${formatRupiah(tabunganPerBulanRp.value)}/bln (±${tabunganPerBulanGram.value} gr/bln, selama ${totalBulan.value} bulan)
   (Harga emas dikunci saat akad, cicilan tetap setiap bulan selama ${totalBulan.value} bulan. Harga akad mengikuti harga resmi Galeri 24 pada saat transaksi. Belum termasuk biaya lain yang berlaku saat akad.)
 - Estimasi Nilai Emas saat Berangkat: ${formatRupiah(nilaiEmasAkhir.value)}
-// TODO: menunggu persetujuan kepatuhan/DPS: redaksi netral menggantikan Proteksi Nilai Aset (Gain)
 - Estimasi Selisih Nilai Emas: +${formatRupiah(selisihPertumbuhanRp.value)} (+${persentasePertumbuhan.value}%)
 
 Acuan Parameter:
@@ -302,7 +302,6 @@ Acuan Parameter:
 - Harga Buyback Galeri 24: ${formatRupiah(hargaBuyback.value)}/gr
 - Proyeksi Harga Emas Galeri 24: Jual ${formatRupiah(hargaJual.value * f)}/gr | Buyback ${formatRupiah(hargaBuyback.value * f)}/gr
 
-// TODO: menunggu persetujuan kepatuhan/DPS: asumsi 7% mengacu sejak 2000 bukan jaminan
 *Simulasi mengacu pada harga emas batangan Galeri 24 (${formatRupiah(hargaJual.value)}/gr) dengan asumsi simulasi 7% per tahun, mengacu pada rata-rata kenaikan harga emas sejak 2000, bukan jaminan.
 *Informasi lebih lanjut dapat dikonsultasikan melalui outlet terdekat.`
 

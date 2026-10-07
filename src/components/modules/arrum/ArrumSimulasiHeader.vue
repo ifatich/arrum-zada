@@ -212,10 +212,10 @@ const scrollToSection = (id: string): void => {
                     <span class="tag-live-dot" aria-hidden="true"></span>
                     Acuan Resmi Galeri 24
                   </span>
-                  <!-- Badge Terkini HANYA tampil jika data bertanggal hari ini -->
+                  <!-- Badge Harga hari ini HANYA tampil jika data bertanggal hari ini -->
                   <span v-if="isToday && !hasError && hargaJual" class="sync-status-pill" role="status">
                     <span class="sync-check" aria-hidden="true">✓</span>
-                    Terkini
+                    Harga hari ini
                   </span>
                 </div>
                 <button
@@ -245,9 +245,14 @@ const scrollToSection = (id: string): void => {
                   <span class="sr-only">Muat ulang harga terbaru</span>
                 </button>
               </div>
-              <span v-if="tanggalAcuan" class="highlight-date">
-                Per {{ tanggalAcuan }}{{ waktuUpdate ? `, ${waktuUpdate}` : '' }}
-              </span>
+              <div v-if="tanggalAcuan" class="highlight-date-wrapper">
+                <span class="highlight-date">
+                  Harga per {{ tanggalAcuan }}
+                </span>
+                <span v-if="waktuUpdate" class="highlight-subdate">
+                  diambil {{ waktuUpdate }}
+                </span>
+              </div>
               <span v-else-if="isLoadingHarga" class="highlight-date text-loading">
                 Memuat data harga resmi...
               </span>
@@ -703,11 +708,24 @@ const scrollToSection = (id: string): void => {
   transform: scale(0.7) translateY(-2px);
 }
 
+.highlight-date-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .highlight-date {
   font-size: var(--g-kit-font-size-atom);
   line-height: var(--g-kit-line-height-atom);
   color: #64748b;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.highlight-subdate {
+  font-size: var(--g-kit-font-size-atom, 11px);
+  line-height: var(--g-kit-line-height-atom, 14px);
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .text-loading {

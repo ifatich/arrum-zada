@@ -6,11 +6,11 @@ declare module '*.vue' {
 }
 
 declare module 'kitvue-public*' {
-  const content: any
+  const content: Record<string, unknown>
   export default content
 }
 
 declare module 'kitvue*' {
-  const content: any
+  const content: Record<string, unknown>
   export default content
 }

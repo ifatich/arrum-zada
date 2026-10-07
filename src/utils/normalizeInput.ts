@@ -73,8 +73,8 @@ export function normalizeTahunInput(raw: string | number | null | undefined): No
 
   let hadDecimal = false
 
-  // Cek apakah ada pemisah desimal (. atau ,) yang diikuti digit
-  if (/[.,]\d+/.test(str)) {
+  // Cek apakah ada pemisah desimal (. atau ,)
+  if (/[.,]/.test(str)) {
     hadDecimal = true
     // Ambil bagian bulat sebelum pemisah desimal pertama
     str = str.split(/[.,]/)[0]
