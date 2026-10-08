@@ -7,6 +7,9 @@
  * Standar: Minimalist & Clean, Vue 3 <script setup lang="ts">, Bebas ikon/emoji.
  */
 import { ArrumZadaLogoLandscape } from '@/components/shared/logo'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 /**
  * Handler scroll halus ke target section formulir atau hasil simulasi
@@ -52,6 +55,15 @@ const scrollTo = (id: string): void => {
           @click="scrollTo('heading-hasil-simulasi')"
         >
           Hasil Simulasi
+        </button>
+
+        <button
+          type="button"
+          class="nav-link-btn"
+          style="color: #007aff; font-weight: bold; margin-left: 8px;"
+          @click="router.push('/deeplink-test')"
+        >
+          Tes Deeplink
         </button>
       </div>
     </div>

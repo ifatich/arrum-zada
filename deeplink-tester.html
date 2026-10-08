@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrum Zada - Deeplink Tester</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; text-align: center; background-color: #f4f4f9; margin: 0;}
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #333; font-size: 24px; margin-bottom: 8px;}
+        p { color: #666; font-size: 14px; margin-bottom: 24px; line-height: 1.5;}
+        .section { margin-bottom: 30px; text-align: left;}
+        h3 { color: #444; border-bottom: 2px solid #eee; padding-bottom: 8px; margin-bottom: 16px;}
+        a { 
+            display: block; 
+            margin: 10px 0; 
+            padding: 14px 20px; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        a:active { opacity: 0.8; }
+        .ios { background-color: #007AFF; } /* iOS Blue */
+        .android { background-color: #3DDC84; color: #000;} /* Android Green */
+        .badge { font-size: 11px; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 4px; float: right; font-weight: normal; }
+        .android .badge { background: rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Tester Deeplink</h1>
+        <p>Buka halaman ini di browser HP Anda (Safari/Chrome). <br>Pastikan aplikasi dalam keadaan <strong>BELUM LOGIN</strong> sebelum menekan tombol di bawah untuk melihat responsnya.</p>
+
+        <div class="section">
+            <h3>🍏 iOS (tring://)</h3>
+            <a class="ios" href="tring://emas/beliEmas">Beli Emas <span class="badge">8.7.0</span></a>
+            <a class="ios" href="tring://emas/cicilEmasBatangan">Cicil Emas Batangan <span class="badge">8.7.0</span></a>
+            <a class="ios" href="tring://emas/deposito">Deposito <span class="badge">8.7.0</span></a>
+            <a class="ios" href="tring://emas/gadaiTE">Gadai TE <span class="badge">8.7.0</span></a>
+            <a class="ios" href="tring://emas/bayargadai">Bayar Gadai <span class="badge">8.7.0</span></a>
+            
+            <a class="ios" href="tring://emas/cicilEmasTabungan" style="margin-top:20px; background-color: #0A5A9C;">Cicil Emas Tabungan <span class="badge">New 8.8.0</span></a>
+            <a class="ios" href="tring://promoList" style="background-color: #0A5A9C;">Promo List <span class="badge">New 8.8.0</span></a>
+        </div>
+
+        <div class="section">
+            <h3>🤖 Android (tringapp://)</h3>
+            <a class="android" href="tringapp://emas/beliEmas">Beli Emas <span class="badge">8.7.0</span></a>
+            <a class="android" href="tringapp://emas/cicilEmasBatangan">Cicil Emas Batangan <span class="badge">8.7.0</span></a>
+            <a class="android" href="tringapp://emas/deposito">Deposito <span class="badge">8.7.0</span></a>
+            <a class="android" href="tringapp://emas/gadaiTE">Gadai TE <span class="badge">8.7.0</span></a>
+            <a class="android" href="tringapp://emas/bayargadai">Bayar Gadai <span class="badge">8.7.0</span></a>
+            
+            <a class="android" href="tringapp://emas/cicilEmasTabungan" style="margin-top:20px; background-color: #2eb068; color: white;">Cicil Emas Tabungan <span class="badge" style="background: rgba(255,255,255,0.2);">New 8.8.0</span></a>
+            <a class="android" href="tringapp://promoList" style="background-color: #2eb068; color: white;">Promo List <span class="badge" style="background: rgba(255,255,255,0.2);">New 8.8.0</span></a>
+        </div>
+    </div>
+
+</body>
+</html>
