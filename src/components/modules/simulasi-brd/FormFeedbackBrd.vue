@@ -136,9 +136,6 @@ const triggerAppHandoff = (): void => {
   wasOpenedFromHandoff.value = true
   isSubmitted.value = false
   isModalOpen.value = true
-
-  // Otomatis picu pembukaan Tring secara dinamis (Android Intent / iOS Scheme + Fallback Store)
-  launchTringApp()
 }
 
 const openDirectSurvey = (): void => {
@@ -279,8 +276,8 @@ defineExpose({
               <!-- Actions: Premium Dual App Store Badges -->
               <div class="handoff-actions-row">
                 <template v-if="deviceInfo.isMobile">
-                  <a
-                    :href="deviceInfo.isAndroid ? TRING_CONFIG.androidIntentUrl : TRING_CONFIG.iosSchemeUrl"
+                  <button
+                    type="button"
                     class="btn-store-badge btn-primary-launch"
                     @click="() => launchTringApp()"
                   >
@@ -288,7 +285,7 @@ defineExpose({
                     <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
-                  </a>
+                  </button>
                   <a
                     :href="deviceInfo.isAndroid ? TRING_CONFIG.androidPlayStoreUrl : TRING_CONFIG.iosAppStoreUrl"
                     target="_blank"
@@ -670,13 +667,13 @@ defineExpose({
           <button type="button" class="btn-footer-link" @click="closeModal">
             Nanti Saja
           </button>
-          <a
-            :href="deviceInfo.isAndroid ? TRING_CONFIG.androidIntentUrl : (deviceInfo.isIos ? TRING_CONFIG.iosSchemeUrl : TRING_CONFIG.androidPlayStoreUrl)"
+          <button
+            type="button"
             class="btn-footer-action"
             @click="() => launchTringApp()"
           >
             Buka Aplikasi Tring ↗
-          </a>
+          </button>
         </template>
 
         <!-- FOOTER: STATE SUKSES -->
@@ -910,11 +907,13 @@ defineExpose({
   padding: 10px 20px;
   background: var(--g-kit-broccoli-50, #004d43);
   color: var(--g-kit-white, #ffffff);
+  border: none;
   border-radius: 8px;
   font-size: var(--g-kit-font-size-sigma, 14px);
   line-height: var(--g-kit-line-height-sigma, 20px);
   font-weight: var(--g-kit-font-weight-bold, 700);
   text-decoration: none;
+  cursor: pointer;
   transition: background-color 0.15s ease;
 }
 

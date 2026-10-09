@@ -67,11 +67,17 @@ withDefaults(defineProps<ArrumHasilSimulasiProps>(), {
 })
 const emit = defineEmits<ArrumHasilSimulasiEmits>()
 
-import { launchTringApp } from '@/utils/tringLauncher'
+import { launchTringApp, getDeviceInfo } from '@/utils/tringLauncher'
 
 const handleTriggerTring = (): void => {
-  launchTringApp()
-  emit('openApp')
+  const { isMobile } = getDeviceInfo()
+  if (isMobile) {
+    // Pada perangkat mobile (Android/iOS): Langsung buka Tring (atau fallback ke Store jika belum terpasang)
+    launchTringApp()
+  } else {
+    // Pada desktop: Tampilkan modal handoff evaluasi & link store
+    emit('openApp')
+  }
 }
 </script>
 

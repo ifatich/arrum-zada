@@ -51,53 +51,105 @@ export const getDeviceInfo = (): DeviceInfo => {
 }
 
 /**
- * Memicu pembukaan aplikasi Tring secara dinamis:
- * - Android: Memakai Android Intent (otomatis buka Tring jika sudah terpasang, jika belum langsung buka Play Store).
- * - iOS: Mencoba membuka scheme tring://, dengan timer fallback ke App Store jika aplikasi belum terpasang.
- * - Desktop: Callback fallback untuk navigasi / buka modal panduan.
+ * Flag mutex untuk mencegah eksekusi ganda / duplicate race condition
+ */
+let isLaunching = false
+let launchLockTimer: ReturnType<typeof setTimeout> | null = null
+
+/**
+ * Memicu peluncuran aplikasi Tring secara dinamis:
+ * - Menggunakan mutex lock (3 detik) agar tidak terjadi pemanggilan ganda.
+ * - Android: Menggunakan scheme resmi 'tringapp://emas/cicilEmasTabungan'.
+ *   Jika aplikasi terpasang -> Android membuka Tring dan tab browser kehilangan fokus (membatalkan fallback).
+ *   Jika belum terpasang -> Browser tetap aktif dan dialihkan ke Google Play Store resmi.
+ * - iOS: Menggunakan scheme resmi 'tring://emas/cicilEmasTabungan'.
+ *   Jika aplikasi terpasang -> iOS membuka Tring, memicu pagehide/visibilitychange/blur (membatalkan fallback).
+ *   Jika belum terpasang -> Browser tetap aktif dan dialihkan ke Apple App Store.
+ * - Desktop: Memanggil callback fallback (misal: membuka modal panduan).
  */
 export const launchTringApp = (onFallbackToStore?: () => void): void => {
   if (typeof window === 'undefined') return
 
-  const { isAndroid, isIos } = getDeviceInfo()
+  // 1. Cegah pemicu berulang (Debounce / Mutex Guard)
+  if (isLaunching) {
+    return
+  }
+  isLaunching = true
+  if (launchLockTimer) clearTimeout(launchLockTimer)
+  launchLockTimer = setTimeout(() => {
+    isLaunching = false
+  }, 3000)
 
-  if (isAndroid) {
-    // Pada Android, intent URL adalah cara paling andal karena dihandle langsung oleh OS & Chrome
-    window.location.href = TRING_CONFIG.androidIntentUrl
+  const { isAndroid, isMobile } = getDeviceInfo()
+
+  if (!isMobile) {
+    if (onFallbackToStore) {
+      onFallbackToStore()
+    }
     return
   }
 
-  if (isIos) {
-    const startTime = Date.now()
-    let hasLeftPage = false
+  const schemeUrl = isAndroid ? TRING_CONFIG.androidSchemeUrl : TRING_CONFIG.iosSchemeUrl
+  const storeUrl = isAndroid ? TRING_CONFIG.androidPlayStoreUrl : TRING_CONFIG.iosAppStoreUrl
 
-    const handleVisibility = () => {
-      if (document.hidden) {
-        hasLeftPage = true
-      }
+  let appOpened = false
+  let fallbackTimer: ReturnType<typeof setTimeout> | null = null
+  const startTime = Date.now()
+
+  const cleanListeners = () => {
+    if (fallbackTimer) {
+      clearTimeout(fallbackTimer)
+      fallbackTimer = null
+    }
+    window.removeEventListener('pagehide', onPageHide)
+    window.removeEventListener('blur', onBlur)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+  }
+
+  const onPageHide = () => {
+    appOpened = true
+    cleanListeners()
+  }
+
+  const onBlur = () => {
+    appOpened = true
+    cleanListeners()
+  }
+
+  const onVisibilityChange = () => {
+    if (document.hidden) {
+      appOpened = true
+      cleanListeners()
+    }
+  }
+
+  // Daftarkan listener pembatalan SEBELUM memicu scheme URL
+  window.addEventListener('pagehide', onPageHide, { once: true })
+  window.addEventListener('blur', onBlur, { once: true })
+  document.addEventListener('visibilitychange', onVisibilityChange)
+
+  // Picu scheme aplikasi
+  window.location.href = schemeUrl
+
+  // Siapkan timer fallback HANYA jika aplikasi tidak merespon / belum terpasang
+  fallbackTimer = setTimeout(() => {
+    cleanListeners()
+
+    // Jika aplikasi sudah dibuka atau halaman sempat kehilangan fokus, JANGAN alihkan ke store!
+    if (appOpened || document.hidden) {
+      return
     }
 
-    document.addEventListener('visibilitychange', handleVisibility, { once: true })
+    // Jika selisih waktu terlalu besar, berarti browser sempat disuspend/pause oleh OS saat membuka app
+    const elapsed = Date.now() - startTime
+    if (elapsed > 2500) {
+      return
+    }
 
-    // Coba luncurkan aplikasi via custom URL scheme
-    window.location.href = TRING_CONFIG.iosSchemeUrl
-
-    // Timer fallback jika aplikasi belum terpasang di perangkat iOS
-    setTimeout(() => {
-      document.removeEventListener('visibilitychange', handleVisibility)
-      // Jika dokumen masih aktif dan terlihat (tidak terminimize), berarti app belum terpasang
-      if (!hasLeftPage && !document.hidden && Date.now() - startTime < 3500) {
-        if (onFallbackToStore) {
-          onFallbackToStore()
-        }
-        window.location.href = TRING_CONFIG.iosAppStoreUrl
-      }
-    }, 2200)
-    return
-  }
-
-  // Jika diakses dari desktop / laptop
-  if (onFallbackToStore) {
-    onFallbackToStore()
-  }
+    // Aplikasi benar-benar belum terpasang (halaman tetap diam & aktif selama 1.8s)
+    if (onFallbackToStore) {
+      onFallbackToStore()
+    }
+    window.location.href = storeUrl
+  }, 1800)
 }
