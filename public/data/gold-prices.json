@@ -1,66 +1,66 @@
 [
   {
-    "date": "2026-10-07",
+    "date": "2026-10-09",
     "sellingPrice": "2516000",
-    "buybackPrice": "2368000",
+    "buybackPrice": "2371000",
     "vendorName": "GALERI 24",
-    "changeSell": "0.24",
-    "changeBuy": "0.08",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeSell": "0.44",
+    "changeBuy": "0.55",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
-    "sellingPrice": "2619000",
-    "buybackPrice": "2343000",
+    "date": "2026-10-09",
+    "sellingPrice": "2611000",
+    "buybackPrice": "2345000",
     "vendorName": "ANTAM",
-    "changeSell": "0.38",
-    "changeBuy": "0.13",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeSell": "0.27",
+    "changeBuy": "0.51",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
-    "sellingPrice": "2520000",
-    "buybackPrice": "2343000",
+    "date": "2026-10-09",
+    "sellingPrice": "2521000",
+    "buybackPrice": "2345000",
     "vendorName": "ANTAM MULIA RETRO",
-    "changeSell": "0.20",
-    "changeBuy": "0.13",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeSell": "0.44",
+    "changeBuy": "0.51",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
-    "sellingPrice": "2520000",
+    "date": "2026-10-09",
+    "sellingPrice": "2521000",
     "buybackPrice": "2234000",
     "vendorName": "ANTAM NON PEGADAIAN",
-    "changeSell": "0.20",
-    "changeBuy": "0.22",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeSell": "0.44",
+    "changeBuy": "0.45",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
+    "date": "2026-10-09",
     "sellingPrice": "2539000",
-    "buybackPrice": "2343000",
+    "buybackPrice": "2345000",
     "vendorName": "UBS",
-    "changeSell": "0.20",
-    "changeBuy": "0.13",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeSell": "0.40",
+    "changeBuy": "0.51",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
+    "date": "2026-10-09",
     "sellingPrice": "2561000",
-    "buybackPrice": "2343000",
+    "buybackPrice": "2345000",
     "vendorName": "LOTUS ARCHI",
     "changeSell": "0.00",
-    "changeBuy": "0.13",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeBuy": "0.51",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
-    "date": "2026-10-07",
+    "date": "2026-10-09",
     "sellingPrice": "0",
     "buybackPrice": "2234000",
     "vendorName": "SENTRA BUYBACK",
     "changeSell": "NaN",
-    "changeBuy": "0.22",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "changeBuy": "0.45",
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   },
   {
     "date": "2025-06-13",
@@ -69,6 +69,6 @@
     "vendorName": "LOTUS ARCHI GIFT",
     "changeSell": "0",
     "changeBuy": "0",
-    "fetchedAt": "2026-10-07T13:55:54+07:00"
+    "fetchedAt": "2026-10-09T15:45:37+07:00"
   }
 ]

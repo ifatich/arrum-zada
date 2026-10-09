@@ -47,6 +47,7 @@ export const GRangeDatePicker = DateRangePicker
 export const GDateRangePickerOption = DateRangePickerOption
 export const GInputCamera = InputCamera
 export const GRadio = InputRadio
+export const RadioComponent = InputRadio
 export const GBadge = BadgeComponent
 export const GCardContent = CardContent
 export const GBreadcrumb = Breadcrumb
